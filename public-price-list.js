@@ -691,9 +691,9 @@
 
         getBlocksHtml() {
             return this.data.blocks_with_units.map(block => {
-                const blockInfo = block.block_info || {};
-                const blockName = blockInfo.nombre || 'Bloque Sin Nombre';
-                const blockType = blockInfo.tipo || 'Tipo No Especificado';
+                // Usar directamente las propiedades del bloque desde el JSON
+                const blockName = block.nombre || 'Bloque Sin Nombre';
+                const blockType = block.tipo || 'Tipo No Especificado';
                 const unitsCount = block.units?.length || 0;
 
                 const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
