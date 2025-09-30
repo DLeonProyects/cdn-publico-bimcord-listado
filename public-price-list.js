@@ -530,7 +530,63 @@
         line-height: 1rem;
         color: #6b7280;
         font-family: 'Poppins', sans-serif;
-    `
+    `,
+            fileInputContainer: `
+            position: relative;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+        `,
+        fileInputLabel: `
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background-color: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
+            min-height: 3rem;
+        `,
+        fileInputLabelHover: `
+            background-color: #f3f4f6;
+            border-color: #2563eb;
+            color: #2563eb;
+        `,
+        fileInputHidden: `
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        `,
+        filePreview: `
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            color: #0369a1;
+            font-family: 'Poppins', sans-serif;
+        `,
+        uploadIcon: `
+            width: 1.25rem;
+            height: 1.25rem;
+            color: currentColor;
+        `
     };
 
     const NACIONALIDADES = [
@@ -591,6 +647,11 @@
         search: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
+        </svg>`,
+        upload: `<svg style="${WIDGET_STYLES.uploadIcon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7,10 12,15 17,10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>`
     };
 
@@ -930,6 +991,7 @@
             });
         }
 
+
         showInterestModal(unit) {
             // Crear el modal
             const modalOverlay = document.createElement('div');
@@ -1022,6 +1084,34 @@
                                 maxlength="11">
                             <div style="${WIDGET_STYLES.helpText}" class="document-help">
                                 11 dígitos sin guiones
+                            </div>
+                        </div>
+
+                        <!-- Subir Documento -->
+                        <div style="${WIDGET_STYLES.formGroup}">
+                            <label style="${WIDGET_STYLES.formLabel}" for="documentFile">
+                                Subir Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                            </label>
+                            <div style="${WIDGET_STYLES.fileInputContainer}">
+                                <input 
+                                    type="file" 
+                                    id="documentFile" 
+                                    name="documentFile" 
+                                    required
+                                    accept="image/*,.pdf"
+                                    class="bimcord-file-input"
+                                    style="${WIDGET_STYLES.fileInputHidden}">
+                                <label 
+                                    for="documentFile" 
+                                    class="bimcord-file-label"
+                                    style="${WIDGET_STYLES.fileInputLabel}">
+                                    ${ICONS.upload}
+                                    <span class="file-label-text">Seleccionar archivo (imagen o PDF)</span>
+                                </label>
+                                <div class="file-preview" style="display: none;"></div>
+                            </div>
+                            <div style="${WIDGET_STYLES.helpText}">
+                                Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
                             </div>
                         </div>
 
@@ -1133,16 +1223,50 @@
             const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
             const form = modalOverlay.querySelector('.bimcord-interest-form');
 
+            // Función para cerrar el modal
+            const closeModal = () => {
+                if (modalOverlay && modalOverlay.parentNode) {
+                    modalOverlay.remove();
+                }
+                this.currentModal = null;
+            };
+
+            // Event listeners para cerrar el modal
+            if (closeButton) {
+                closeButton.addEventListener('click', closeModal);
+            }
+            
+            if (cancelButton) {
+                cancelButton.addEventListener('click', closeModal);
+            }
+
+            // Cerrar modal al hacer click en el overlay
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+            // Cerrar modal con la tecla Escape
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+
             // Inicializar funcionalidad de tipo de documento
             this.initDocumentTypeHandlers(modalOverlay);
             
             // Inicializar funcionalidad de nacionalidad
             this.initNationalityHandlers(modalOverlay);
 
+            // Inicializar funcionalidad de archivo
+            this.initFileUploadHandlers(modalOverlay);
+
             // Inicializar validación
             this.initFormValidation(form, submitButton);
-
-            // ... existing code for close handlers ...
 
             // Manejar envío del formulario
             const handleSubmit = (e) => {
@@ -1154,6 +1278,8 @@
                 }
                 
                 const formData = new FormData(form);
+                const documentFile = formData.get('documentFile');
+                
                 const data = {
                     unitId: unit.id,
                     unitNumber: unit.numero,
@@ -1166,10 +1292,22 @@
                     nationality: formData.get('nationality'),
                     documentExpiry: formData.get('documentExpiry'),
                     email: formData.get('email'),
-                    phone: formData.get('phone')
+                    phone: formData.get('phone'),
+                    documentFile: documentFile ? {
+                        name: documentFile.name,
+                        size: documentFile.size,
+                        type: documentFile.type
+                    } : null
                 };
 
-                this.handleInterestSubmission(data);
+                // Console.log para ver los datos enviados
+                console.log('=== DATOS DEL FORMULARIO ENVIADOS ===');
+                console.log('Datos completos:', data);
+                console.log('Archivo adjunto:', documentFile);
+                console.log('FormData completo:', formData);
+                console.log('=====================================');
+
+                this.handleInterestSubmission(data, formData);
                 closeModal();
             };
 
@@ -1177,161 +1315,70 @@
             form.addEventListener('submit', handleSubmit);
         }
 
-        // Nueva función para inicializar la validación del formulario
-        initFormValidation(form, submitButton) {
-            const inputs = form.querySelectorAll('input[required]');
-            
-            // Deshabilitar botón inicialmente
-            this.updateSubmitButton(submitButton, false);
-            
-            inputs.forEach(input => {
-                // Validación en tiempo real
-                input.addEventListener('input', () => {
-                    this.validateField(input);
-                    this.updateSubmitButton(submitButton, this.isFormValid(form));
-                });
-                
-                input.addEventListener('blur', () => {
-                    this.validateField(input);
-                    this.updateSubmitButton(submitButton, this.isFormValid(form));
-                });
+        // Nueva función para manejar la subida de archivos
+        initFileUploadHandlers(modalOverlay) {
+            const fileInput = modalOverlay.querySelector('#documentFile');
+            const fileLabel = modalOverlay.querySelector('.bimcord-file-label');
+            const fileLabelText = modalOverlay.querySelector('.file-label-text');
+            const filePreview = modalOverlay.querySelector('.file-preview');
+
+            if (!fileInput || !fileLabel || !fileLabelText || !filePreview) {
+                console.warn('Elementos de archivo no encontrados');
+                return;
+            }
+
+            // Agregar estilos hover al label
+            fileLabel.addEventListener('mouseenter', () => {
+                fileLabel.style.cssText = WIDGET_STYLES.fileInputLabel + '; ' + WIDGET_STYLES.fileInputLabelHover;
             });
-        }
 
+            fileLabel.addEventListener('mouseleave', () => {
+                fileLabel.style.cssText = WIDGET_STYLES.fileInputLabel;
+            });
 
-        initDocumentTypeHandlers(modalOverlay) {
-            const documentButtons = modalOverlay.querySelectorAll('.document-type-btn');
-            const documentTypeInput = modalOverlay.querySelector('#documentType');
-            const documentNumberInput = modalOverlay.querySelector('#documentNumber');
-            const helpText = modalOverlay.querySelector('.document-help');
-            const nationalityRequired = modalOverlay.querySelector('.nationality-required');
-            const expiryRequired = modalOverlay.querySelector('.expiry-required');
-            const nationalityInput = modalOverlay.querySelector('#nationality');
-            const expiryInput = modalOverlay.querySelector('#documentExpiry');
-
-            documentButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const documentType = button.dataset.type;
-                    
-                    // Actualizar botones activos
-                    documentButtons.forEach(btn => {
-                        btn.style.cssText = WIDGET_STYLES.documentTypeButton;
-                    });
-                    button.style.cssText = WIDGET_STYLES.documentTypeButtonActive;
-                    
-                    // Actualizar valor del input hidden
-                    documentTypeInput.value = documentType;
-                    
-                    // Actualizar configuración del campo número de documento
-                    const config = DOCUMENT_CONFIG[documentType];
-                    if (config) {
-                        documentNumberInput.placeholder = config.placeholder;
-                        documentNumberInput.maxLength = config.maxLength;
-                        helpText.textContent = config.description;
+            // Manejar cambio de archivo
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    // Validar tamaño del archivo (5MB máximo)
+                    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                    if (file.size > maxSize) {
+                        this.showFieldError(fileInput, 'El archivo es demasiado grande. Máximo 5MB.');
+                        fileInput.value = '';
+                        return;
                     }
-                    
-                    // Mostrar/ocultar campos requeridos según el tipo de documento
-                    if (documentType === 'Pasaporte') {
-                        nationalityRequired.style.display = 'inline';
-                        expiryRequired.style.display = 'inline';
-                        nationalityInput.required = true;
-                        expiryInput.required = true;
-                    } else {
-                        nationalityRequired.style.display = 'none';
-                        expiryRequired.style.display = 'none';
-                        nationalityInput.required = false;
-                        expiryInput.required = false;
-                        nationalityInput.value = '';
-                        expiryInput.value = '';
+
+                    // Validar tipo de archivo
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                    if (!allowedTypes.includes(file.type)) {
+                        this.showFieldError(fileInput, 'Tipo de archivo no permitido. Use JPG, PNG o PDF.');
+                        fileInput.value = '';
+                        return;
                     }
-                    
-                    // Limpiar errores del campo número de documento
-                    this.clearFieldError(documentNumberInput);
-                    
+
+                    // Mostrar preview del archivo
+                    fileLabelText.textContent = `Archivo seleccionado: ${file.name}`;
+                    filePreview.style.cssText = WIDGET_STYLES.filePreview;
+                    filePreview.style.display = 'block';
+                    filePreview.innerHTML = `
+                        <strong>Archivo:</strong> ${file.name}<br>
+                        <strong>Tamaño:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                        <strong>Tipo:</strong> ${file.type}
+                    `;
+
+                    // Limpiar errores
+                    this.clearFieldError(fileInput);
+
                     // Revalidar el formulario
                     const form = modalOverlay.querySelector('.bimcord-interest-form');
                     const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
                     this.updateSubmitButton(submitButton, this.isFormValid(form));
-                });
-            });
-        }
-
-        // Nueva función para manejar el dropdown de nacionalidades
-        initNationalityHandlers(modalOverlay) {
-            const nationalityInput = modalOverlay.querySelector('#nationality');
-            const dropdown = modalOverlay.querySelector('.nationality-dropdown');
-            
-            if (!nationalityInput || !dropdown) {
-                console.warn('Elementos de nacionalidad no encontrados');
-                return;
-            }
-            
-            let filteredNationalities = [...NACIONALIDADES];
-            
-            // Función para renderizar opciones
-            const renderOptions = (nationalities) => {
-                dropdown.innerHTML = '';
-                
-                if (nationalities.length === 0) {
-                    dropdown.innerHTML = `
-                        <div style="${WIDGET_STYLES.nationalityOption}; color: #6b7280;">
-                            No se encontraron resultados
-                        </div>
-                    `;
                 } else {
-                    nationalities.forEach(nationality => {
-                        const option = document.createElement('div');
-                        option.style.cssText = WIDGET_STYLES.nationalityOption;
-                        option.textContent = nationality;
-                        option.addEventListener('click', () => {
-                            nationalityInput.value = nationality;
-                            dropdown.style.display = 'none';
-                            this.clearFieldError(nationalityInput);
-                            
-                            // Revalidar el formulario
-                            const form = modalOverlay.querySelector('.bimcord-interest-form');
-                            const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
-                            this.updateSubmitButton(submitButton, this.isFormValid(form));
-                        });
-                        option.addEventListener('mouseenter', () => {
-                            option.style.backgroundColor = '#f3f4f6';
-                        });
-                        option.addEventListener('mouseleave', () => {
-                            option.style.backgroundColor = 'transparent';
-                        });
-                        dropdown.appendChild(option);
-                    });
+                    // Resetear si no hay archivo
+                    fileLabelText.textContent = 'Seleccionar archivo (imagen o PDF)';
+                    filePreview.style.display = 'none';
                 }
-            };
-            
-            // Mostrar dropdown al hacer focus
-            nationalityInput.addEventListener('focus', () => {
-                renderOptions(filteredNationalities);
-                dropdown.style.display = 'block';
-            });
-            
-            // Filtrar mientras se escribe
-            nationalityInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                filteredNationalities = NACIONALIDADES.filter(nationality =>
-                    nationality.toLowerCase().includes(searchTerm)
-                );
-                renderOptions(filteredNationalities);
-                dropdown.style.display = 'block';
-            });
-            
-            // Ocultar dropdown al hacer click fuera
-            const hideDropdown = (e) => {
-                if (!nationalityInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.style.display = 'none';
-                }
-            };
-            
-            document.addEventListener('click', hideDropdown);
-            
-            // Limpiar el event listener cuando se cierre el modal
-            modalOverlay.addEventListener('remove', () => {
-                document.removeEventListener('click', hideDropdown);
             });
         }
 
@@ -1371,6 +1418,13 @@
                     } else if (!config.pattern.test(value)) {
                         isValid = false;
                         errorMessage = `Formato inválido. ${config.description}`;
+                    }
+                    break;
+
+                case 'documentFile':
+                    if (!input.files || input.files.length === 0) {
+                        isValid = false;
+                        errorMessage = 'Debe subir un documento';
                     }
                     break;
 
@@ -1468,8 +1522,12 @@
             const inputs = form.querySelectorAll('input[required]');
             
             for (let input of inputs) {
-                const value = input.value.trim();
-                if (!value) return false;
+                if (input.type === 'file') {
+                    if (!input.files || input.files.length === 0) return false;
+                } else {
+                    const value = input.value.trim();
+                    if (!value) return false;
+                }
                 
                 // Verificar que no haya errores visibles
                 const errorElement = input.parentNode.querySelector('.bimcord-error-message');
@@ -1492,10 +1550,18 @@
             }
         }
 
-        handleInterestSubmission(data) {
-            // Por ahora solo mostramos los datos en consola
-            // Más adelante aquí se implementará el envío al backend
-            console.log('Datos de interés enviados:', data);
+        handleInterestSubmission(data, formData) {
+            // Console.log adicional para debugging
+            console.log('=== FUNCIÓN handleInterestSubmission ===');
+            console.log('Data object:', data);
+            console.log('FormData object:', formData);
+            
+            // Iterar sobre FormData para ver todos los campos
+            console.log('=== CONTENIDO DE FORMDATA ===');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}:`, value);
+            }
+            console.log('===============================');
             
             // Mostrar mensaje de confirmación temporal
             alert(`¡Gracias ${data.firstName}! Hemos recibido tu interés en la unidad ${data.unitNumber}. Nos pondremos en contacto contigo pronto.`);
