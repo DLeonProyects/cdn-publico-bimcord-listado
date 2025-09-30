@@ -1270,7 +1270,8 @@
             // ... existing code for close handlers ...
 
             // Manejar envío del formulario
-            const handleSubmit = (e) => {
+            // Manejar envío del formulario
+            const handleSubmit = async (e) => {
                 e.preventDefault();
                 
                 // Validar formulario antes de enviar
@@ -1301,8 +1302,15 @@
                     } : null
                 };
 
-                this.handleInterestSubmission(data);
-                closeModal();
+                // Intentar enviar los datos
+                try {
+                    await this.handleInterestSubmission(data, formData);
+                    // Solo cerrar el modal si el envío fue exitoso
+                    closeModal();
+                } catch (error) {
+                    // El error ya se maneja en handleInterestSubmission
+                    // No cerrar el modal para permitir reintento
+                }
             };
 
             submitButton.addEventListener('click', handleSubmit);
@@ -1696,21 +1704,73 @@
             }
         }
 
-        handleInterestSubmission(data, formData) {
-            // Console.log adicional para debugging
-            console.log('=== FUNCIÓN handleInterestSubmission ===');
-            console.log('Data object:', data);
-            console.log('FormData object:', formData);
-            
-            // Iterar sobre FormData para ver todos los campos
-            console.log('=== CONTENIDO DE FORMDATA ===');
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
+        async handleInterestSubmission(data, formData) {
+            if (!this.config.apiBaseUrl) {
+                console.error('API Base URL no configurada');
+                alert('Error: Configuración de API no encontrada');
+                return;
             }
-            console.log('===============================');
+
+            // Mostrar estado de carga en el botón
+            const submitButton = document.querySelector('.bimcord-submit-button');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Enviando...';
+            submitButton.disabled = true;
+            submitButton.style.cssText = WIDGET_STYLES.buttonDisabled;
+
+            try {
+                // Preparar los datos para enviar a la API
+                const apiData = new FormData();
+                
+                // Agregar todos los campos del formulario
+                for (let [key, value] of formData.entries()) {
+                    apiData.append(key, value);
+                }
+                
+                // Agregar información adicional de la unidad
+                apiData.append('unitId', data.unitId);
+                apiData.append('unitNumber', data.unitNumber);
+                apiData.append('unitPrice', data.unitPrice);
+                apiData.append('unitArea', data.unitArea);
+                apiData.append('projectId', this.config.projectId);
+
+                // Realizar la petición a la API
+                const response = await fetch(`${this.config.apiBaseUrl}/api/auth/public-client-interest/`, {
+                    method: 'POST',
+                    body: apiData,
+                    // No establecer Content-Type para FormData, el navegador lo hace automáticamente
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                // Console.log para debugging (opcional, puedes removerlo en producción)
+                console.log('Respuesta de la API:', result);
+                
+                // Mostrar mensaje de éxito
+                alert(`¡Gracias ${data.firstName}! Hemos recibido tu interés en la unidad ${data.unitNumber}. Nos pondremos en contacto contigo pronto.`);
+                
+            } catch (error) {
+                console.error('Error al enviar datos a la API:', error);
+                
+                // Mostrar mensaje de error al usuario
+                alert(`Error al enviar la información: ${error.message}. Por favor, inténtalo nuevamente.`);
+                
+                // Restaurar el botón para permitir reintento
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                submitButton.style.cssText = WIDGET_STYLES.buttonPrimary;
+                
+                return; // Salir sin cerrar el modal para permitir reintento
+            }
             
-            // Mostrar mensaje de confirmación temporal
-            alert(`¡Gracias ${data.firstName}! Hemos recibido tu interés en la unidad ${data.unitNumber}. Nos pondremos en contacto contigo pronto.`);
+            // Restaurar el botón (solo si fue exitoso)
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            submitButton.style.cssText = WIDGET_STYLES.buttonPrimary;
         }
 
         // Método público para actualizar configuración
