@@ -440,7 +440,129 @@
             font-size: 0.875rem;
             line-height: 1.25rem;
             opacity: 0.6;
-        `
+        `,
+            documentTypeGroup: `
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    `,
+    documentTypeButton: `
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        text-align: center;
+    `,
+    documentTypeButtonActive: `
+        padding: 0.5rem 0.75rem;
+        border: 1px solid transparent;
+        color: white;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        background-color: #2563eb;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        text-align: center;
+    `,
+    // Estilos para el dropdown de nacionalidades
+    nationalityDropdown: `
+        position: absolute;
+        z-index: 10;
+        margin-top: 0.25rem;
+        width: 100%;
+        background-color: white;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border-radius: 0.375rem;
+        border: 1px solid #e5e7eb;
+        max-height: 15rem;
+        overflow-y: auto;
+    `,
+    nationalityOption: `
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    `,
+    nationalityOptionHover: `
+        background-color: #f3f4f6;
+    `,
+    searchIcon: `
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        width: 1.25rem;
+        height: 1.25rem;
+        pointer-events: none;
+    `,
+    inputWithIcon: `
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        background-color: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #111827;
+        box-sizing: border-box;
+        transition: all 0.2s ease-in-out;
+        font-family: 'Poppins', sans-serif;
+    `,
+    helpText: `
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        color: #6b7280;
+        font-family: 'Poppins', sans-serif;
+    `
+    };
+
+    const NACIONALIDADES = [
+        'Dominicana', 'Estadounidense', 'Española', 'Mexicana', 'Colombiana', 
+        'Venezolana', 'Argentina', 'Chilena', 'Peruana', 'Brasileña', 
+        'Canadiense', 'Italiana', 'Francesa', 'Alemana', 'Británica',
+        'Japonesa', 'China', 'Coreana', 'Rusa', 'Portuguesa', 'Holandesa',
+        'Sueca', 'Noruega', 'Danesa', 'Finlandesa', 'Suiza', 'Austriaca',
+        'Belga', 'Irlandesa', 'Griega', 'Turca', 'Israelí', 'Egipcia',
+        'Marroquí', 'Sudafricana', 'Australiana', 'Neozelandesa'
+    ];
+
+    // Configuración de validación por tipo de documento
+    const DOCUMENT_CONFIG = {
+        Cedula: {
+            maxLength: 11,
+            pattern: /^\d{11}$/,
+            placeholder: '00112345678',
+            description: '11 dígitos sin guiones'
+        },
+        RNC: {
+            maxLength: 9,
+            pattern: /^\d{9}$/,
+            placeholder: '123456789',
+            description: '9 dígitos'
+        },
+        Pasaporte: {
+            maxLength: 9,
+            pattern: /^[A-Z0-9]{9}$/,
+            placeholder: 'A12345678',
+            description: '9 caracteres (letras y números)'
+        }
     };
 
     // Iconos SVG embebidos
@@ -542,6 +664,8 @@
             document.head.appendChild(style);
         }
     };
+
+
 
     // Utilidades de formateo
     const formatCurrency = (amount, currency = 'USD') => {
@@ -827,60 +951,141 @@
                 
                 <div style="${WIDGET_STYLES.modalBody}">
                     <form class="bimcord-interest-form">
+                        <!-- Nombres y Apellidos -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="firstName">
+                                    Nombres <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="firstName" 
+                                    name="firstName" 
+                                    required
+                                    class="bimcord-form-input"
+                                    style="${WIDGET_STYLES.formInput}"
+                                    placeholder="Ej: Juan Carlos">
+                            </div>
+                            
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="lastName">
+                                    Apellidos <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="lastName" 
+                                    name="lastName" 
+                                    required
+                                    class="bimcord-form-input"
+                                    style="${WIDGET_STYLES.formInput}"
+                                    placeholder="Ej: Pérez Gómez">
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Documento -->
                         <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="firstName">
-                                Nombre *
+                            <label style="${WIDGET_STYLES.formLabel}">
+                                Tipo de Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                            </label>
+                            <div style="${WIDGET_STYLES.documentTypeGroup}">
+                                <button type="button" class="document-type-btn" data-type="Cedula" style="${WIDGET_STYLES.documentTypeButtonActive}">
+                                    Cédula
+                                </button>
+                                <button type="button" class="document-type-btn" data-type="RNC" style="${WIDGET_STYLES.documentTypeButton}">
+                                    RNC
+                                </button>
+                                <button type="button" class="document-type-btn" data-type="Pasaporte" style="${WIDGET_STYLES.documentTypeButton}">
+                                    Pasaporte
+                                </button>
+                            </div>
+                            <input type="hidden" id="documentType" name="documentType" value="Cedula" required>
+                        </div>
+
+                        <!-- Número de Documento -->
+                        <div style="${WIDGET_STYLES.formGroup}">
+                            <label style="${WIDGET_STYLES.formLabel}" for="documentNumber">
+                                Número de Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
                             </label>
                             <input 
                                 type="text" 
-                                id="firstName" 
-                                name="firstName" 
+                                id="documentNumber" 
+                                name="documentNumber" 
                                 required
                                 class="bimcord-form-input"
                                 style="${WIDGET_STYLES.formInput}"
-                                placeholder="Ingresa tu nombre">
+                                placeholder="00112345678"
+                                maxlength="11">
+                            <div style="${WIDGET_STYLES.helpText}" class="document-help">
+                                11 dígitos sin guiones
+                            </div>
                         </div>
-                        
+
+                        <!-- Nacionalidad -->
                         <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="lastName">
-                                Apellido *
+                            <label style="${WIDGET_STYLES.formLabel}" for="nationality">
+                                Nacionalidad <span class="nationality-required" style="${WIDGET_STYLES.requiredAsterisk}; display: none;">*</span>
+                            </label>
+                            <div style="position: relative;">
+                                <div style="${WIDGET_STYLES.searchIcon}">
+                                    ${ICONS.search}
+                                </div>
+                                <input 
+                                    type="text" 
+                                    id="nationality" 
+                                    name="nationality" 
+                                    class="bimcord-form-input"
+                                    style="${WIDGET_STYLES.inputWithIcon}"
+                                    placeholder="Buscar nacionalidad..."
+                                    autocomplete="off">
+                                <div class="nationality-dropdown" style="${WIDGET_STYLES.nationalityDropdown}; display: none;">
+                                    <!-- Las opciones se generarán dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fecha de Vencimiento del Documento -->
+                        <div style="${WIDGET_STYLES.formGroup}">
+                            <label style="${WIDGET_STYLES.formLabel}" for="documentExpiry">
+                                Fecha de Vencimiento del Documento <span class="expiry-required" style="${WIDGET_STYLES.requiredAsterisk}; display: none;">*</span>
                             </label>
                             <input 
-                                type="text" 
-                                id="lastName" 
-                                name="lastName" 
-                                required
+                                type="date" 
+                                id="documentExpiry" 
+                                name="documentExpiry" 
                                 class="bimcord-form-input"
                                 style="${WIDGET_STYLES.formInput}"
-                                placeholder="Ingresa tu apellido">
+                                min="${new Date().toISOString().split('T')[0]}">
                         </div>
-                        
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="email">
-                                Correo Electrónico *
-                            </label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                required
-                                class="bimcord-form-input"
-                                style="${WIDGET_STYLES.formInput}"
-                                placeholder="ejemplo@correo.com">
-                        </div>
-                        
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="phone">
-                                Teléfono/Celular *
-                            </label>
-                            <input 
-                                type="tel" 
-                                id="phone" 
-                                name="phone" 
-                                required
-                                class="bimcord-form-input"
-                                style="${WIDGET_STYLES.formInput}"
-                                placeholder="(809) 000-0000">
+
+                        <!-- Email y Teléfono -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="email">
+                                    Correo Electrónico <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    required
+                                    class="bimcord-form-input"
+                                    style="${WIDGET_STYLES.formInput}"
+                                    placeholder="ejemplo@correo.com">
+                            </div>
+                            
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="phone">
+                                    Teléfono Celular <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                </label>
+                                <input 
+                                    type="tel" 
+                                    id="phone" 
+                                    name="phone" 
+                                    required
+                                    class="bimcord-form-input"
+                                    style="${WIDGET_STYLES.formInput}"
+                                    placeholder="+1 (809) 555-1234">
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -923,34 +1128,16 @@
             const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
             const form = modalOverlay.querySelector('.bimcord-interest-form');
 
+            // Inicializar funcionalidad de tipo de documento
+            this.initDocumentTypeHandlers(modalOverlay);
+            
+            // Inicializar funcionalidad de nacionalidad
+            this.initNationalityHandlers(modalOverlay);
+
             // Inicializar validación
             this.initFormValidation(form, submitButton);
 
-            // Cerrar modal
-            const closeModal = () => {
-                modalOverlay.remove();
-                this.currentModal = null;
-            };
-
-            // Event listeners para cerrar
-            closeButton.addEventListener('click', closeModal);
-            cancelButton.addEventListener('click', closeModal);
-            
-            // Cerrar al hacer click fuera del modal
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) {
-                    closeModal();
-                }
-            });
-
-            // Cerrar con tecla Escape
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                    document.removeEventListener('keydown', handleEscape);
-                }
-            };
-            document.addEventListener('keydown', handleEscape);
+            // ... existing code for close handlers ...
 
             // Manejar envío del formulario
             const handleSubmit = (e) => {
@@ -969,6 +1156,10 @@
                     unitArea: unit.area,
                     firstName: formData.get('firstName'),
                     lastName: formData.get('lastName'),
+                    documentType: formData.get('documentType'),
+                    documentNumber: formData.get('documentNumber'),
+                    nationality: formData.get('nationality'),
+                    documentExpiry: formData.get('documentExpiry'),
                     email: formData.get('email'),
                     phone: formData.get('phone')
                 };
@@ -1002,7 +1193,70 @@
             });
         }
 
-        // Función para validar un campo individual
+
+        // Nueva función para manejar el dropdown de nacionalidades
+        initNationalityHandlers(modalOverlay) {
+            const nationalityInput = modalOverlay.querySelector('#nationality');
+            const dropdown = modalOverlay.querySelector('.nationality-dropdown');
+            
+            let filteredNationalities = [...NACIONALIDADES];
+            
+            // Función para renderizar opciones
+            const renderOptions = (nationalities) => {
+                dropdown.innerHTML = '';
+                
+                if (nationalities.length === 0) {
+                    dropdown.innerHTML = `
+                        <div style="${WIDGET_STYLES.nationalityOption}; color: #6b7280;">
+                            No se encontraron resultados
+                        </div>
+                    `;
+                } else {
+                    nationalities.forEach(nationality => {
+                        const option = document.createElement('div');
+                        option.style.cssText = WIDGET_STYLES.nationalityOption;
+                        option.textContent = nationality;
+                        option.addEventListener('click', () => {
+                            nationalityInput.value = nationality;
+                            dropdown.style.display = 'none';
+                            this.clearFieldError(nationalityInput);
+                        });
+                        option.addEventListener('mouseenter', () => {
+                            option.style.backgroundColor = '#f3f4f6';
+                        });
+                        option.addEventListener('mouseleave', () => {
+                            option.style.backgroundColor = 'transparent';
+                        });
+                        dropdown.appendChild(option);
+                    });
+                }
+            };
+            
+            // Mostrar dropdown al hacer focus
+            nationalityInput.addEventListener('focus', () => {
+                renderOptions(filteredNationalities);
+                dropdown.style.display = 'block';
+            });
+            
+            // Filtrar mientras se escribe
+            nationalityInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                filteredNationalities = NACIONALIDADES.filter(nationality =>
+                    nationality.toLowerCase().includes(searchTerm)
+                );
+                renderOptions(filteredNationalities);
+                dropdown.style.display = 'block';
+            });
+            
+            // Ocultar dropdown al hacer click fuera
+            document.addEventListener('click', (e) => {
+                if (!nationalityInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        // Actualizar función de validación de campos
         validateField(input) {
             const value = input.value.trim();
             const fieldName = input.name;
@@ -1025,6 +1279,38 @@
                     } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
                         isValid = false;
                         errorMessage = 'Solo se permiten letras y espacios';
+                    }
+                    break;
+
+                case 'documentNumber':
+                    const documentType = document.querySelector('#documentType').value;
+                    const config = DOCUMENT_CONFIG[documentType];
+                    
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = 'El número de documento es obligatorio';
+                    } else if (!config.pattern.test(value)) {
+                        isValid = false;
+                        errorMessage = `Formato inválido. ${config.description}`;
+                    }
+                    break;
+
+                case 'nationality':
+                    const isPassport = document.querySelector('#documentType').value === 'Pasaporte';
+                    if (isPassport && !value) {
+                        isValid = false;
+                        errorMessage = 'La nacionalidad es requerida para pasaportes';
+                    }
+                    break;
+
+                case 'documentExpiry':
+                    const isPassportExpiry = document.querySelector('#documentType').value === 'Pasaporte';
+                    if (isPassportExpiry && !value) {
+                        isValid = false;
+                        errorMessage = 'La fecha de vencimiento es requerida para pasaportes';
+                    } else if (value && new Date(value) <= new Date()) {
+                        isValid = false;
+                        errorMessage = 'La fecha debe ser futura';
                     }
                     break;
 
