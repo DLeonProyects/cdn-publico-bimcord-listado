@@ -523,7 +523,7 @@
 
             try {
                 const response = await fetch(
-                    `${this.config.apiBaseUrl}/api/projects/public-listas-precios/?proyecto_id=${this.config.projectId}/`
+                    `${this.config.apiBaseUrl}/api/projects/public-listas-precios/?proyecto_id=${this.config.projectId}`
                 );
 
                 if (!response.ok) {
