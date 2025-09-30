@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Precios Pública - BIMCORD</title>
+</head>
+<body>
+    <div id="public-price-list-container"></div>
+
+    <script src="public-price-list.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('public-price-list-container');
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // projectId y apiBaseUrl SOLO vendrán de parámetros o atributos data
+            const projectId = urlParams.get('projectId') || container.getAttribute('data-project-id');
+            const apiBaseUrl = urlParams.get('apiBaseUrl') || container.getAttribute('data-api-base-url');
+
+            if (projectId && apiBaseUrl) {
+                window.PublicPriceList.init('public-price-list-container', {
+                    projectId: projectId,
+                    apiBaseUrl: apiBaseUrl
+                });
+            } else {
+                console.error('Faltan parámetros: projectId o apiBaseUrl');
+            }
+        });
+    </script>
+</body>
+</html>
