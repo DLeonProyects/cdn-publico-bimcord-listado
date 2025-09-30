@@ -15,7 +15,7 @@
     // Estilos base para el widget
     const WIDGET_STYLES = {
         container: `
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.5;
             color: #111827;
             width: 100%;
@@ -294,102 +294,113 @@
             border-radius: 0.75rem;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             width: 100%;
-            max-width: 28rem;
+            max-width: 32rem;
             max-height: 90vh;
             overflow-y: auto;
         `,
         modalHeader: `
-            padding: 1.5rem 1.5rem 1rem 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 2rem 2rem 1.5rem 2rem;
+            position: relative;
         `,
         modalTitle: `
-            font-size: 1.25rem;
-            line-height: 1.75rem;
+            font-size: 1.875rem;
+            line-height: 2.25rem;
             font-weight: 700;
             color: #111827;
-            margin: 0 0 0.5rem 0;
+            margin: 0 0 0.25rem 0;
+            font-family: 'Poppins', sans-serif;
         `,
         modalSubtitle: `
             font-size: 0.875rem;
             line-height: 1.25rem;
             color: #6b7280;
             margin: 0;
+            font-family: 'Poppins', sans-serif;
         `,
         modalBody: `
-            padding: 1.5rem;
+            padding: 0 2rem 1.5rem 2rem;
         `,
         modalFooter: `
-            padding: 1rem 1.5rem 1.5rem 1.5rem;
-            border-top: 1px solid #e5e7eb;
+            padding: 1rem 2rem 2rem 2rem;
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             justify-content: flex-end;
         `,
-        // Estilos para el formulario
+        // Estilos mejorados para el formulario
         formGroup: `
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         `,
         formLabel: `
             display: block;
             font-size: 0.875rem;
             line-height: 1.25rem;
             font-weight: 500;
-            color: #374151;
+            color: #6b7280;
             margin-bottom: 0.25rem;
+            font-family: 'Poppins', sans-serif;
         `,
         formInput: `
+            display: block;
             width: 100%;
-            padding: 0.5rem 0.75rem;
+            padding: 0.75rem 1rem;
+            background-color: #f9fafb;
             border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             font-size: 0.875rem;
             line-height: 1.25rem;
             color: #111827;
-            background-color: white;
             box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
         `,
         formInputFocus: `
+            outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-            outline: none;
         `,
-        // Estilos para botones del modal
+        // Estilos mejorados para botones del modal
         buttonPrimary: `
-            background-color: #2563eb;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
             color: white;
-            border: none;
-            border-radius: 0.375rem;
-            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            background-color: #2563eb;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
             font-size: 0.875rem;
             line-height: 1.25rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
         `,
         buttonSecondary: `
-            background-color: white;
-            color: #374151;
+            padding: 0.75rem 1.5rem;
             border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0.5rem 1rem;
+            color: #6b7280;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
             font-size: 0.875rem;
             line-height: 1.25rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
         `,
         closeButton: `
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
             background: none;
             border: none;
             color: #6b7280;
             cursor: pointer;
             padding: 0.25rem;
             border-radius: 0.25rem;
-            transition: color 0.2s, background-color 0.2s;
+            transition: all 0.2s ease-in-out;
+        `,
+        requiredAsterisk: `
+            color: #ef4444;
         `
     };
 
@@ -421,6 +432,12 @@
     // Agregar estilos de animación al documento
     const addAnimationStyles = () => {
         if (!document.getElementById('bimcord-animations')) {
+            // Agregar fuente Poppins
+            const fontLink = document.createElement('link');
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap';
+            fontLink.rel = 'stylesheet';
+            document.head.appendChild(fontLink);
+
             const style = document.createElement('style');
             style.id = 'bimcord-animations';
             style.textContent = `
@@ -452,10 +469,11 @@
                     background-color: #1d4ed8 !important;
                 }
                 .bimcord-button-primary:hover {
-                    background-color: #1d4ed8 !important;
+                    background-color: #1e40af !important;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
                 }
                 .bimcord-button-secondary:hover {
-                    background-color: #f9fafb !important;
+                    background-color: #f3f4f6 !important;
                     border-color: #9ca3af !important;
                 }
                 .bimcord-close-button:hover {
@@ -463,9 +481,13 @@
                     background-color: #f3f4f6 !important;
                 }
                 .bimcord-form-input:focus {
+                    outline: none !important;
                     border-color: #2563eb !important;
                     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
-                    outline: none !important;
+                    background-color: #ffffff !important;
+                }
+                .bimcord-form-input::placeholder {
+                    color: #9ca3af !important;
                 }
             `;
             document.head.appendChild(style);
