@@ -1086,6 +1086,34 @@
                             </div>
                         </div>
 
+                        <!-- Subir Documento -->
+                        <div style="${WIDGET_STYLES.formGroup}">
+                            <label style="${WIDGET_STYLES.formLabel}" for="documentFile">
+                                Subir Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                            </label>
+                            <div style="${WIDGET_STYLES.fileInputContainer}">
+                                <input 
+                                    type="file" 
+                                    id="documentFile" 
+                                    name="documentFile" 
+                                    required
+                                    accept="image/*,.pdf"
+                                    class="bimcord-file-input"
+                                    style="${WIDGET_STYLES.fileInputHidden}">
+                                <label 
+                                    for="documentFile" 
+                                    class="bimcord-file-label"
+                                    style="${WIDGET_STYLES.fileInputLabel}">
+                                    ${ICONS.upload}
+                                    <span class="file-label-text">Seleccionar archivo (imagen o PDF)</span>
+                                </label>
+                                <div class="file-preview" style="display: none;"></div>
+                            </div>
+                            <div style="${WIDGET_STYLES.helpText}">
+                                Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+                            </div>
+                        </div>
+
                         <!-- Nacionalidad -->
                         <div style="${WIDGET_STYLES.formGroup}">
                             <label style="${WIDGET_STYLES.formLabel}" for="nationality">
@@ -1233,6 +1261,9 @@
             // Inicializar funcionalidad de nacionalidad
             this.initNationalityHandlers(modalOverlay);
 
+            // Inicializar funcionalidad de archivo
+            this.initFileUploadHandlers(modalOverlay);
+
             // Inicializar validación
             this.initFormValidation(form, submitButton);
 
@@ -1248,6 +1279,8 @@
                 }
                 
                 const formData = new FormData(form);
+                const documentFile = formData.get('documentFile');
+
                 const data = {
                     unitId: unit.id,
                     unitNumber: unit.numero,
@@ -1260,7 +1293,12 @@
                     nationality: formData.get('nationality'),
                     documentExpiry: formData.get('documentExpiry'),
                     email: formData.get('email'),
-                    phone: formData.get('phone')
+                    phone: formData.get('phone'),
+                    documentFile: documentFile ? {
+                        name: documentFile.name,
+                        size: documentFile.size,
+                        type: documentFile.type
+                    } : null
                 };
 
                 this.handleInterestSubmission(data);
@@ -1291,6 +1329,74 @@
                 });
             });
         }
+
+                // Nueva función para manejar la subida de archivos
+        initFileUploadHandlers(modalOverlay) {
+            const fileInput = modalOverlay.querySelector('#documentFile');
+            const fileLabel = modalOverlay.querySelector('.bimcord-file-label');
+            const fileLabelText = modalOverlay.querySelector('.file-label-text');
+            const filePreview = modalOverlay.querySelector('.file-preview');
+
+            if (!fileInput || !fileLabel || !fileLabelText || !filePreview) {
+                console.warn('Elementos de archivo no encontrados');
+                return;
+            }
+
+            // Agregar estilos hover al label
+            fileLabel.addEventListener('mouseenter', () => {
+                fileLabel.style.cssText = WIDGET_STYLES.fileInputLabel + '; ' + WIDGET_STYLES.fileInputLabelHover;
+            });
+
+            fileLabel.addEventListener('mouseleave', () => {
+                fileLabel.style.cssText = WIDGET_STYLES.fileInputLabel;
+            });
+
+            // Manejar cambio de archivo
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    // Validar tamaño del archivo (5MB máximo)
+                    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                    if (file.size > maxSize) {
+                        this.showFieldError(fileInput, 'El archivo es demasiado grande. Máximo 5MB.');
+                        fileInput.value = '';
+                        return;
+                    }
+
+                    // Validar tipo de archivo
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                    if (!allowedTypes.includes(file.type)) {
+                        this.showFieldError(fileInput, 'Tipo de archivo no permitido. Use JPG, PNG o PDF.');
+                        fileInput.value = '';
+                        return;
+                    }
+
+                    // Mostrar preview del archivo
+                    fileLabelText.textContent = `Archivo seleccionado: ${file.name}`;
+                    filePreview.style.cssText = WIDGET_STYLES.filePreview;
+                    filePreview.style.display = 'block';
+                    filePreview.innerHTML = `
+                        <strong>Archivo:</strong> ${file.name}<br>
+                        <strong>Tamaño:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                        <strong>Tipo:</strong> ${file.type}
+                    `;
+
+                    // Limpiar errores
+                    this.clearFieldError(fileInput);
+
+                    // Revalidar el formulario
+                    const form = modalOverlay.querySelector('.bimcord-interest-form');
+                    const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
+                    this.updateSubmitButton(submitButton, this.isFormValid(form));
+                } else {
+                    // Resetear si no hay archivo
+                    fileLabelText.textContent = 'Seleccionar archivo (imagen o PDF)';
+                    filePreview.style.display = 'none';
+                }
+            });
+        }
+
 
 
         initDocumentTypeHandlers(modalOverlay) {
