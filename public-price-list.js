@@ -401,6 +401,45 @@
         `,
         requiredAsterisk: `
             color: #ef4444;
+        `,
+        // Nuevos estilos para validación de errores
+        formInputError: `
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #fef2f2;
+            border: 1px solid #ef4444;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            color: #111827;
+            box-sizing: border-box;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
+        `,
+        formErrorMessage: `
+            display: block;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            color: #ef4444;
+            margin-top: 0.25rem;
+            font-family: 'Poppins', sans-serif;
+        `,
+        buttonDisabled: `
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            color: white;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            opacity: 0.6;
         `
     };
 
@@ -488,6 +527,16 @@
                 }
                 .bimcord-form-input::placeholder {
                     color: #9ca3af !important;
+                }
+                .bimcord-form-input-error:focus {
+                    outline: none !important;
+                    border-color: #ef4444 !important;
+                    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+                    background-color: #fef2f2 !important;
+                }
+                .bimcord-button-disabled:hover {
+                    background-color: #9ca3af !important;
+                    cursor: not-allowed !important;
                 }
             `;
             document.head.appendChild(style);
@@ -874,6 +923,9 @@
             const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
             const form = modalOverlay.querySelector('.bimcord-interest-form');
 
+            // Inicializar validación
+            this.initFormValidation(form, submitButton);
+
             // Cerrar modal
             const closeModal = () => {
                 modalOverlay.remove();
@@ -904,6 +956,11 @@
             const handleSubmit = (e) => {
                 e.preventDefault();
                 
+                // Validar formulario antes de enviar
+                if (!this.validateForm(form)) {
+                    return;
+                }
+                
                 const formData = new FormData(form);
                 const data = {
                     unitId: unit.id,
@@ -922,6 +979,152 @@
 
             submitButton.addEventListener('click', handleSubmit);
             form.addEventListener('submit', handleSubmit);
+        }
+
+        // Nueva función para inicializar la validación del formulario
+        initFormValidation(form, submitButton) {
+            const inputs = form.querySelectorAll('input[required]');
+            
+            // Deshabilitar botón inicialmente
+            this.updateSubmitButton(submitButton, false);
+            
+            inputs.forEach(input => {
+                // Validación en tiempo real
+                input.addEventListener('input', () => {
+                    this.validateField(input);
+                    this.updateSubmitButton(submitButton, this.isFormValid(form));
+                });
+                
+                input.addEventListener('blur', () => {
+                    this.validateField(input);
+                    this.updateSubmitButton(submitButton, this.isFormValid(form));
+                });
+            });
+        }
+
+        // Función para validar un campo individual
+        validateField(input) {
+            const value = input.value.trim();
+            const fieldName = input.name;
+            let isValid = true;
+            let errorMessage = '';
+
+            // Limpiar errores previos
+            this.clearFieldError(input);
+
+            // Validaciones específicas por campo
+            switch (fieldName) {
+                case 'firstName':
+                case 'lastName':
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = 'Este campo es obligatorio';
+                    } else if (value.length < 2) {
+                        isValid = false;
+                        errorMessage = 'Debe tener al menos 2 caracteres';
+                    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                        isValid = false;
+                        errorMessage = 'Solo se permiten letras y espacios';
+                    }
+                    break;
+
+                case 'email':
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = 'El correo electrónico es obligatorio';
+                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                        isValid = false;
+                        errorMessage = 'Ingresa un correo electrónico válido';
+                    }
+                    break;
+
+                case 'phone':
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = 'El teléfono es obligatorio';
+                    } else if (!/^[\d\s\-\(\)\+]+$/.test(value)) {
+                        isValid = false;
+                        errorMessage = 'Formato de teléfono inválido';
+                    } else if (value.replace(/\D/g, '').length < 10) {
+                        isValid = false;
+                        errorMessage = 'El teléfono debe tener al menos 10 dígitos';
+                    }
+                    break;
+            }
+
+            if (!isValid) {
+                this.showFieldError(input, errorMessage);
+            }
+
+            return isValid;
+        }
+
+        // Función para mostrar error en un campo
+        showFieldError(input, message) {
+            input.style.cssText = WIDGET_STYLES.formInputError;
+            
+            // Crear o actualizar mensaje de error
+            let errorElement = input.parentNode.querySelector('.bimcord-error-message');
+            if (!errorElement) {
+                errorElement = document.createElement('span');
+                errorElement.className = 'bimcord-error-message';
+                errorElement.style.cssText = WIDGET_STYLES.formErrorMessage;
+                input.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = message;
+        }
+
+        // Función para limpiar errores de un campo
+        clearFieldError(input) {
+            input.style.cssText = WIDGET_STYLES.formInput;
+            
+            const errorElement = input.parentNode.querySelector('.bimcord-error-message');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        // Función para validar todo el formulario
+        validateForm(form) {
+            const inputs = form.querySelectorAll('input[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!this.validateField(input)) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        // Función para verificar si el formulario es válido
+        isFormValid(form) {
+            const inputs = form.querySelectorAll('input[required]');
+            
+            for (let input of inputs) {
+                const value = input.value.trim();
+                if (!value) return false;
+                
+                // Verificar que no haya errores visibles
+                const errorElement = input.parentNode.querySelector('.bimcord-error-message');
+                if (errorElement) return false;
+            }
+            
+            return true;
+        }
+
+        // Función para actualizar el estado del botón de envío
+        updateSubmitButton(button, isEnabled) {
+            if (isEnabled) {
+                button.style.cssText = WIDGET_STYLES.buttonPrimary;
+                button.disabled = false;
+                button.textContent = 'Enviar Información';
+            } else {
+                button.style.cssText = WIDGET_STYLES.buttonDisabled;
+                button.disabled = true;
+                button.textContent = 'Complete todos los campos';
+            }
         }
 
         handleInterestSubmission(data) {
