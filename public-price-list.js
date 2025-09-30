@@ -1,1748 +1,635 @@
-/**
- * BIMCORD Public Price List Widget
- * Versión con estilos inline - Sin dependencias CSS externas
- */
-(function(global) {
-    'use strict';
-
-    // Configuración por defecto
-    const DEFAULT_CONFIG = {
-        projectId: null,
-        apiBaseUrl: null,
-        embedded: false
-    };
-
-    // Estilos base para el widget
-    const WIDGET_STYLES = {
-        container: `
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.5;
-            color: #111827;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            background: transparent;
-            box-sizing: border-box;
-        `,
-        fullScreen: `
-            min-height: 100vh;
-            background-color: #f9fafb;
-            padding: 1.5rem;
-        `,
-        embedded: `
-            min-height: auto;
-            background-color: transparent;
-            padding: 0;
-        `,
-        centerContent: `
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #f9fafb;
-        `,
-        textCenter: `
-            text-align: center;
-        `,
-        projectHeader: `
-            position: relative;
-            height: 16rem;
-            background: linear-gradient(to bottom right, #2563eb, #1d4ed8);
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        `,
-        projectImage: `
-            position: relative;
-            width: 100%;
-            height: 100%;
-        `,
-        projectImageImg: `
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        `,
-        projectImageOverlay: `
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background: rgba(0, 0, 0, 0.3);
-        `,
-        projectImagePlaceholder: `
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        `,
-        projectContent: `
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        `,
-        projectTitle: `
-            font-size: 2.25rem;
-            line-height: 2.5rem;
-            font-weight: 700;
-            color: white;
-            filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
-            margin: 0;
-        `,
-        projectSubtitle: `
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-            margin: 0;
-        `,
-        sectionTitle: `
-            font-size: 1.5rem;
-            line-height: 2rem;
-            font-weight: 700;
-            color: #111827;
-            margin: 0 0 2rem 0;
-        `,
-        blockCard: `
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        `,
-        blockHeader: `
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        `,
-        blockTitle: `
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-            font-weight: 700;
-            color: #111827;
-            margin: 0;
-        `,
-        blockInfo: `
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        `,
-        blockName: `
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-            font-weight: 600;
-            color: #2563eb;
-        `,
-        blockCount: `
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            color: #4b5563;
-        `,
-        tableContainer: `
-            overflow-x: auto;
-        `,
-        table: `
-            min-width: 100%;
-            border-collapse: collapse;
-            width: 100%;
-        `,
-        tableHeader: `
-            background-color: #f9fafb;
-        `,
-        tableHeaderCell: `
-            padding: 0.5rem 1rem;
-            text-align: left;
-            font-size: 0.75rem;
-            line-height: 1rem;
-            font-weight: 500;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid #e5e7eb;
-        `,
-        tableBody: `
-            background-color: white;
-        `,
-        tableRow: `
-            border-bottom: 1px solid #e5e7eb;
-        `,
-        tableCell: `
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            color: #111827;
-            white-space: nowrap;
-        `,
-        tableCellPrice: `
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            font-weight: 500;
-            color: #2563eb;
-            white-space: nowrap;
-        `,
-        badge: `
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            line-height: 1rem;
-            font-weight: 500;
-            background-color: #dcfce7;
-            color: #166534;
-        `,
-        errorMessage: `
-            color: #dc2626;
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        `,
-        loadingSpinner: `
-            width: 2rem;
-            height: 2rem;
-            border: 2px solid #e5e7eb;
-            border-top: 2px solid #2563eb;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem auto;
-        `,
-        loadingTitle: `
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-            font-weight: 600;
-            color: #111827;
-            margin: 0 0 0.5rem 0;
-        `,
-        loadingText: `
-            color: #4b5563;
-            margin: 0;
-        `,
-        emptyState: `
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
-            padding: 1.5rem;
-            text-align: center;
-        `,
-        emptyStateIcon: `
-            width: 3rem;
-            height: 3rem;
-            color: #9ca3af;
-            margin: 0 auto 1rem auto;
-        `,
-        emptyStateText: `
-            color: #4b5563;
-            margin: 0;
-        `,
-        icon: `
-            width: 1em;
-            height: 1em;
-            fill: currentColor;
-            vertical-align: middle;
-        `,
-        iconLarge: `
-            width: 4rem;
-            height: 4rem;
-            color: rgba(255, 255, 255, 0.5);
-        `,
-        // Nuevos estilos para el botón "Me Interesa"
-        interestButton: `
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-            line-height: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            white-space: nowrap;
-        `,
-        interestButtonHover: `
-            background-color: #1d4ed8;
-        `,
-        // Estilos para el modal
-        modalOverlay: `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
-        `,
-        modalContent: `
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            width: 100%;
-            max-width: 32rem;
-            max-height: 90vh;
-            overflow-y: auto;
-        `,
-        modalHeader: `
-            padding: 2rem 2rem 1.5rem 2rem;
-            position: relative;
-        `,
-        modalTitle: `
-            font-size: 1.875rem;
-            line-height: 2.25rem;
-            font-weight: 700;
-            color: #111827;
-            margin: 0 0 0.25rem 0;
-            font-family: 'Poppins', sans-serif;
-        `,
-        modalSubtitle: `
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            color: #6b7280;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        `,
-        modalBody: `
-            padding: 0 2rem 1.5rem 2rem;
-        `,
-        modalFooter: `
-            padding: 1rem 2rem 2rem 2rem;
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        `,
-        // Estilos mejorados para el formulario
-        formGroup: `
-            margin-bottom: 1.5rem;
-        `,
-        formLabel: `
-            display: block;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            font-weight: 500;
-            color: #6b7280;
-            margin-bottom: 0.25rem;
-            font-family: 'Poppins', sans-serif;
-        `,
-        formInput: `
-            display: block;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #f9fafb;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            color: #111827;
-            box-sizing: border-box;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-        `,
-        formInputFocus: `
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        `,
-        // Estilos mejorados para botones del modal
-        buttonPrimary: `
-            padding: 0.75rem 1.5rem;
-            border: 1px solid transparent;
-            color: white;
-            font-weight: 500;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            background-color: #2563eb;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-        `,
-        buttonSecondary: `
-            padding: 0.75rem 1.5rem;
-            border: 1px solid #d1d5db;
-            color: #6b7280;
-            font-weight: 500;
-            border-radius: 0.5rem;
-            background-color: white;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-        `,
-        closeButton: `
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 0.25rem;
-            transition: all 0.2s ease-in-out;
-        `,
-        requiredAsterisk: `
-            color: #ef4444;
-        `,
-        // Nuevos estilos para validación de errores
-        formInputError: `
-            display: block;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #fef2f2;
-            border: 1px solid #ef4444;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            color: #111827;
-            box-sizing: border-box;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-        `,
-        formErrorMessage: `
-            display: block;
-            font-size: 0.75rem;
-            line-height: 1rem;
-            color: #ef4444;
-            margin-top: 0.25rem;
-            font-family: 'Poppins', sans-serif;
-        `,
-        buttonDisabled: `
-            padding: 0.75rem 1.5rem;
-            border: 1px solid transparent;
-            color: white;
-            font-weight: 500;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            background-color: #9ca3af;
-            cursor: not-allowed;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            opacity: 0.6;
-        `,
-            documentTypeGroup: `
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    `,
-    documentTypeButton: `
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #d1d5db;
-        color: #6b7280;
-        font-weight: 500;
-        border-radius: 0.5rem;
-        background-color: white;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-        text-align: center;
-    `,
-    documentTypeButtonActive: `
-        padding: 0.5rem 0.75rem;
-        border: 1px solid transparent;
-        color: white;
-        font-weight: 500;
-        border-radius: 0.5rem;
-        background-color: #2563eb;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-        text-align: center;
-    `,
-    // Estilos para el dropdown de nacionalidades
-    nationalityDropdown: `
-        position: absolute;
-        z-index: 10;
-        margin-top: 0.25rem;
-        width: 100%;
-        background-color: white;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        border-radius: 0.375rem;
-        border: 1px solid #e5e7eb;
-        max-height: 15rem;
-        overflow-y: auto;
-    `,
-    nationalityOption: `
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-    `,
-    nationalityOptionHover: `
-        background-color: #f3f4f6;
-    `,
-    searchIcon: `
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        width: 1.25rem;
-        height: 1.25rem;
-        pointer-events: none;
-    `,
-    inputWithIcon: `
-        display: block;
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.5rem;
-        background-color: #f9fafb;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-        color: #111827;
-        box-sizing: border-box;
-        transition: all 0.2s ease-in-out;
-        font-family: 'Poppins', sans-serif;
-    `,
-    helpText: `
-        margin-top: 0.25rem;
-        font-size: 0.75rem;
-        line-height: 1rem;
-        color: #6b7280;
-        font-family: 'Poppins', sans-serif;
-    `,
-    fileInputContainer: `
-            position: relative;
-            display: block;
-            width: 100%;
-            cursor: pointer;
-        `,
-        fileInputLabel: `
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background-color: #f9fafb;
-            border: 2px dashed #d1d5db;
-            border-radius: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-            min-height: 3rem;
-        `,
-        fileInputLabelHover: `
-            background-color: #f3f4f6;
-            border-color: #2563eb;
-            color: #2563eb;
-        `,
-        fileInputHidden: `
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        `,
-        filePreview: `
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            background-color: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 0.375rem;
-            font-size: 0.75rem;
-            line-height: 1rem;
-            color: #0369a1;
-            font-family: 'Poppins', sans-serif;
-        `,
-        uploadIcon: `
-            width: 1.25rem;
-            height: 1.25rem;
-            color: currentColor;
-        `
-    };
-
-    const NACIONALIDADES = [
-        'Dominicana', 'Estadounidense', 'Española', 'Mexicana', 'Colombiana', 
-        'Venezolana', 'Argentina', 'Chilena', 'Peruana', 'Brasileña', 
-        'Canadiense', 'Italiana', 'Francesa', 'Alemana', 'Británica',
-        'Japonesa', 'China', 'Coreana', 'Rusa', 'Portuguesa', 'Holandesa',
-        'Sueca', 'Noruega', 'Danesa', 'Finlandesa', 'Suiza', 'Austriaca',
-        'Belga', 'Irlandesa', 'Griega', 'Turca', 'Israelí', 'Egipcia',
-        'Marroquí', 'Sudafricana', 'Australiana', 'Neozelandesa'
-    ];
-
-    // Configuración de validación por tipo de documento
-    const DOCUMENT_CONFIG = {
-        Cedula: {
-            maxLength: 11,
-            pattern: /^\d{11}$/,
-            placeholder: '00112345678',
-            description: '11 dígitos sin guiones'
-        },
-        RNC: {
-            maxLength: 9,
-            pattern: /^\d{9}$/,
-            placeholder: '123456789',
-            description: '9 dígitos'
-        },
-        Pasaporte: {
-            maxLength: 9,
-            pattern: /^[A-Z0-9]{9}$/,
-            placeholder: 'A12345678',
-            description: '9 caracteres (letras y números)'
-        }
-    };
-
-    // Iconos SVG embebidos
-    const ICONS = {
-        building: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 21h18"/>
-            <path d="M5 21V7l8-4v18"/>
-            <path d="M19 21V11l-6-4"/>
-            <path d="M9 9v.01"/>
-            <path d="M9 12v.01"/>
-            <path d="M9 15v.01"/>
-            <path d="M9 18v.01"/>
-        </svg>`,
-        alertCircle: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>`,
-        close: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>`,
-        heart: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-        </svg>`,
-        search: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-        </svg>`,
-        upload: `<svg style="${WIDGET_STYLES.uploadIcon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7,10 12,15 17,10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>`
-    };
-
-
-    // Agregar estilos de animación al documento
-    const addAnimationStyles = () => {
-        if (!document.getElementById('bimcord-animations')) {
-            // Agregar fuente Poppins
-            const fontLink = document.createElement('link');
-            fontLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap';
-            fontLink.rel = 'stylesheet';
-            document.head.appendChild(fontLink);
-
-            const style = document.createElement('style');
-            style.id = 'bimcord-animations';
-            style.textContent = `
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes slideIn {
-                    from { 
-                        opacity: 0; 
-                        transform: scale(0.95) translateY(-10px); 
-                    }
-                    to { 
-                        opacity: 1; 
-                        transform: scale(1) translateY(0); 
-                    }
-                }
-                .bimcord-modal-overlay {
-                    animation: fadeIn 0.2s ease-out;
-                }
-                .bimcord-modal-content {
-                    animation: slideIn 0.2s ease-out;
-                }
-                .bimcord-interest-button:hover {
-                    background-color: #1d4ed8 !important;
-                }
-                .bimcord-button-primary:hover {
-                    background-color: #1e40af !important;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-                }
-                .bimcord-button-secondary:hover {
-                    background-color: #f3f4f6 !important;
-                    border-color: #9ca3af !important;
-                }
-                .bimcord-close-button:hover {
-                    color: #374151 !important;
-                    background-color: #f3f4f6 !important;
-                }
-                .bimcord-form-input:focus {
-                    outline: none !important;
-                    border-color: #2563eb !important;
-                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
-                    background-color: #ffffff !important;
-                }
-                .bimcord-form-input::placeholder {
-                    color: #9ca3af !important;
-                }
-                .bimcord-form-input-error:focus {
-                    outline: none !important;
-                    border-color: #ef4444 !important;
-                    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-                    background-color: #fef2f2 !important;
-                }
-                .bimcord-button-disabled:hover {
-                    background-color: #9ca3af !important;
-                    cursor: not-allowed !important;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-    };
-
-
-
-    // Utilidades de formateo
-    const formatCurrency = (amount, currency = 'USD') => {
-        return new Intl.NumberFormat('es-DO', {
-            style: 'currency',
-            currency: currency === 'USD' ? 'USD' : 'DOP',
-            minimumFractionDigits: 2,
-        }).format(amount);
-    };
-
-    // Clase principal del widget
-    class PublicPriceList {
-        constructor(containerId, config = {}) {
-            this.containerId = containerId;
-            this.config = { ...DEFAULT_CONFIG, ...config };
-            this.container = null;
-            this.data = null;
-            this.currentModal = null;
-            
-            this.init();
-        }
-
-        init() {
-            this.container = document.getElementById(this.containerId);
-            if (!this.container) {
-                throw new Error(`Contenedor con ID "${this.containerId}" no encontrado`);
-            }
-
-            // Agregar estilos de animación
-            addAnimationStyles();
-
-            // Aplicar estilos base al contenedor
-            this.container.style.cssText = WIDGET_STYLES.container;
-            
-            this.loadData();
-        }
-
-        async loadData() {
-            if (!this.config.projectId) {
-                this.showError('ID de proyecto no proporcionado');
+(function() {
+    // Global object for the widget
+    window.PublicPriceList = {
+        init: function(containerId, options) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error(`PublicPriceList: Container with ID '${containerId}' not found.`);
                 return;
             }
 
-            if (!this.config.apiBaseUrl) {
-                this.showError('URL base de API no proporcionada');
+            const projectId = options.projectId;
+            const apiBaseUrl = options.apiBaseUrl || 'https://bimcord-backend-python-production.up.railway.app'; // Fallback a tu URL de producción
+            const embedded = options.embedded || false;
+
+            if (!projectId) {
+                container.innerHTML = '<div class="ppl-error">Error: Project ID is required.</div>';
+                console.error('PublicPriceList: Project ID is required in options.');
                 return;
             }
 
-            this.showLoading();
-
-            try {
-                const response = await fetch(
-                    `${this.config.apiBaseUrl}/api/projects/public-listas-precios/?proyecto_id=${this.config.projectId}`
-                );
-
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
-                }
-
-                this.data = await response.json();
-                this.render();
-            } catch (error) {
-                console.error('Error al cargar datos:', error);
-                this.showError(`Error al cargar los datos: ${error.message}`);
+            container.classList.add('ppl-container');
+            if (embedded) {
+                container.classList.add('ppl-embedded');
             }
-        }
 
-        showLoading() {
-            this.container.innerHTML = `
-                <div style="${WIDGET_STYLES.centerContent}">
-                    <div style="${WIDGET_STYLES.textCenter}">
-                        <div style="${WIDGET_STYLES.loadingSpinner}"></div>
-                        <h2 style="${WIDGET_STYLES.loadingTitle}">Cargando Listado de Precios...</h2>
-                        <p style="${WIDGET_STYLES.loadingText}">Obteniendo detalles del listado de precios público...</p>
-                    </div>
-                </div>
-            `;
-        }
+            // --- Helper Functions ---
 
-        showError(errorMessage) {
-            this.container.innerHTML = `
-                <div style="${WIDGET_STYLES.centerContent}">
-                    <div style="${WIDGET_STYLES.textCenter}">
-                        <div style="${WIDGET_STYLES.errorMessage}">${errorMessage}</div>
-                        <p style="${WIDGET_STYLES.loadingText}">
-                            Por favor, verifica que el ID del proyecto sea correcto e inténtalo nuevamente.
+            const showLoading = (message = 'Cargando...') => {
+                container.innerHTML = `<div class="ppl-loading">${message}</div>`;
+            };
+
+            const showError = (message) => {
+                container.innerHTML = `<div class="ppl-error">${message}</div>`;
+            };
+
+            const formatCurrency = (amount, currency = 'USD') => {
+                if (amount === undefined || amount === null) return 'N/A';
+                const numAmount = parseFloat(amount);
+                if (isNaN(numAmount)) return 'N/A';
+                return new Intl.NumberFormat('es-DO', {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 2,
+                }).format(numAmount);
+            };
+
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                try {
+                    const date = new Date(dateString);
+                    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+                } catch (e) {
+                    return dateString;
+                }
+            };
+
+            // --- ICONS (assuming these are defined elsewhere or inlined) ---
+            const ICONS = {
+                close: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+                upload: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>',
+                search: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+                fileText: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>',
+                image: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>'
+            };
+
+            // --- WIDGET_STYLES (assuming these are defined elsewhere or inlined) ---
+            // These styles should ideally come from your public-price-list.css
+            // For now, we'll use a simplified version or assume they are handled by the CSS file.
+            const WIDGET_STYLES = {
+                modalOverlay: 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; box-sizing: border-box;',
+                modalContent: 'background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 500px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; box-sizing: border-box;',
+                modalHeader: 'margin-bottom: 20px; text-align: center;',
+                modalTitle: 'font-size: 1.5em; font-weight: 700; color: #031c8b; margin-top: 0; margin-bottom: 5px;',
+                modalSubtitle: 'font-size: 1em; color: #4b5563; margin-bottom: 15px;',
+                closeButton: 'position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.8em; cursor: pointer; color: #4b5563; transition: color 0.2s ease;',
+                modalBody: 'padding-bottom: 20px;',
+                modalFooter: 'display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid #e5e7eb;',
+                formGroup: 'display: flex; flex-direction: column; margin-bottom: 15px;',
+                formLabel: 'font-size: 0.9em; font-weight: 500; margin-bottom: 5px; color: #1f2937;',
+                requiredAsterisk: 'color: #ef4444;',
+                formInput: 'padding: 10px; border: 1px solid #e5e7eb; border-radius: 5px; font-size: 1em; width: 100%; box-sizing: border-box;',
+                documentTypeGroup: 'display: flex; gap: 10px; margin-bottom: 10px;',
+                documentTypeButton: 'flex: 1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 5px; background-color: #f9fafb; cursor: pointer; transition: all 0.2s ease; font-size: 0.9em;',
+                documentTypeButtonActive: 'flex: 1; padding: 10px; border: 1px solid #031c8b; border-radius: 5px; background-color: #031c8b; color: white; cursor: pointer; font-size: 0.9em;',
+                helpText: 'font-size: 0.8em; color: #6b7280; margin-top: 5px;',
+                fileInputContainer: 'border: 2px dashed #e5e7eb; border-radius: 5px; padding: 20px; text-align: center; cursor: pointer;',
+                fileInputHidden: 'display: none;',
+                fileInputLabel: 'display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: #4b5563;',
+                searchIcon: 'position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af;',
+                inputWithIcon: 'padding-left: 35px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; border: 1px solid #e5e7eb; border-radius: 5px; font-size: 1em; width: 100%; box-sizing: border-box;',
+                nationalityDropdown: 'position: absolute; top: 100%; left: 0; right: 0; background-color: white; border: 1px solid #e5e7eb; border-radius: 5px; max-height: 150px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1);',
+                buttonPrimary: 'background-color: #031c8b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: 600; transition: background-color 0.2s ease;',
+                buttonSecondary: 'background-color: #f9fafb; color: #1f2937; border: 1px solid #e5e7eb; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: 600; transition: background-color 0.2s ease;',
+            };
+
+
+            // --- Form Rendering and Submission Logic ---
+
+            const showInterestModal = (unit) => {
+                // Crear el modal
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'bimcord-modal-overlay';
+                modalOverlay.style.cssText = WIDGET_STYLES.modalOverlay;
+
+                const modalContent = document.createElement('div');
+                modalContent.className = 'bimcord-modal-content';
+                modalContent.style.cssText = WIDGET_STYLES.modalContent;
+
+                modalContent.innerHTML = `
+                    <div style="${WIDGET_STYLES.modalHeader}; position: relative;">
+                        <h3 style="${WIDGET_STYLES.modalTitle}">Expresar Interés</h3>
+                        <p style="${WIDGET_STYLES.modalSubtitle}">
+                            Unidad ${unit.numero} - ${unit.area}m² - ${formatCurrency(unit.precio, 'USD')}
                         </p>
-                    </div>
-                </div>
-            `;
-        }
-
-        getProjectImageHtml() {
-            const project = this.data.proyecto_detail;
-            return project?.imagen 
-                ? `<div style="${WIDGET_STYLES.projectImage}">
-                    <img 
-                        src="${project.imagen}" 
-                        alt="${project.nombre}"
-                        style="${WIDGET_STYLES.projectImageImg}">
-                    <div style="${WIDGET_STYLES.projectImageOverlay}"></div>
-                </div>`
-                : `<div style="${WIDGET_STYLES.projectImagePlaceholder}">
-                    <div style="${WIDGET_STYLES.iconLarge}">${ICONS.building}</div>
-                </div>`;
-        }
-
-        getEmptyStateHtml() {
-            return this.data.blocks_with_units.length === 0 
-                ? `<div style="${WIDGET_STYLES.emptyState}">
-                    <div style="${WIDGET_STYLES.emptyStateIcon}">${ICONS.alertCircle}</div>
-                    <p style="${WIDGET_STYLES.emptyStateText}">No hay unidades disponibles en este listado de precios.</p>
-                </div>`
-                : '';
-        }
-
-        render() {
-            const project = this.data.proyecto_detail;
-            const containerStyle = this.config.embedded ? WIDGET_STYLES.embedded : WIDGET_STYLES.fullScreen;
-            
-            this.container.innerHTML = `
-                <div style="${containerStyle}">
-                    <!-- Header del proyecto -->
-                    <div style="${WIDGET_STYLES.projectHeader}">
-                        ${this.getProjectImageHtml()}
-                        <div style="${WIDGET_STYLES.projectContent}">
-                            <h1 style="${WIDGET_STYLES.projectTitle}">
-                                ${project?.nombre || 'Proyecto Sin Nombre'}
-                            </h1>
-                            <p style="${WIDGET_STYLES.projectSubtitle}">Listado de Precios Público</p>
-                        </div>
-                    </div>
-
-                    <!-- Contenido principal -->
-                    <div>
-                        <h2 style="${WIDGET_STYLES.sectionTitle}">Unidades Disponibles</h2>
-                        
-                        ${this.getEmptyStateHtml()}
-                        ${this.getBlocksHtml()}
-                    </div>
-                </div>
-            `;
-
-            // Agregar event listeners para los botones "Me Interesa"
-            this.addEventListeners();
-        }
-
-        getBlocksHtml() {
-            return this.data.blocks_with_units.map(block => {
-                // Usar directamente las propiedades del bloque desde el JSON
-                const blockName = block.nombre || 'Bloque Sin Nombre';
-                const blockType = block.tipo || 'Tipo No Especificado';
-                const unitsCount = block.units?.length || 0;
-
-                const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
-                    ? `<span style="${WIDGET_STYLES.blockName}">
-                        ${blockName}
-                    </span>`
-                    : '';
-
-                const unitsCountHtml = unitsCount > 0 
-                    ? `<span style="${WIDGET_STYLES.blockCount}">${unitsCount} unidades</span>`
-                    : '';
-
-                const tableHeaders = `
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Nivel</th>
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Área (m²)</th>
-                    ${blockType === 'Residencial' ? 
-                        `<th style="${WIDGET_STYLES.tableHeaderCell}">Balcón (m²)</th>` : 
-                        ''}
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Parqueos</th>
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Precio</th>
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Estado</th>
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Acción</th>
-                `;
-
-                const tableRows = block.units?.length > 0 
-                    ? block.units.map(unit => this.getUnitRowHtml(unit, blockType)).join('')
-                    : `<tr style="${WIDGET_STYLES.tableRow}">
-                        <td colspan="${blockType === 'Residencial' ? '7' : '6'}" style="${WIDGET_STYLES.tableCell}; text-align: center; color: #6b7280;">
-                            No hay unidades disponibles en este bloque
-                        </td>
-                    </tr>`;
-
-                return `
-                    <div style="${WIDGET_STYLES.blockCard}">
-                        <div style="${WIDGET_STYLES.blockHeader}">
-                            <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
-                            <div style="${WIDGET_STYLES.blockInfo}">
-                                ${blockNameHtml}
-                                ${unitsCountHtml}
-                            </div>
-                        </div>
-                        
-                        <div style="${WIDGET_STYLES.tableContainer}">
-                            <table style="${WIDGET_STYLES.table}">
-                                <thead style="${WIDGET_STYLES.tableHeader}">
-                                    <tr>${tableHeaders}</tr>
-                                </thead>
-                                <tbody style="${WIDGET_STYLES.tableBody}">
-                                    ${tableRows}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        getUnitRowHtml(unit, blockType) {
-            const balconCell = blockType === 'Residencial' 
-                ? `<td style="${WIDGET_STYLES.tableCell}">${unit.m2_balcon_from_block || '-'}</td>`
-                : '';
-
-            return `
-                <tr style="${WIDGET_STYLES.tableRow}">
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.numero}</td>
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.area}</td>
-                    ${balconCell}
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.parqueos_from_block || '-'}</td>
-                    <td style="${WIDGET_STYLES.tableCellPrice}">${formatCurrency(unit.precio, 'USD')}</td>
-                    <td style="${WIDGET_STYLES.tableCell}">
-                        <span style="${WIDGET_STYLES.badge}">${unit.estado}</span>
-                    </td>
-                    <td style="${WIDGET_STYLES.tableCell}">
-                        <button 
-                            class="bimcord-interest-button" 
-                            style="${WIDGET_STYLES.interestButton}"
-                            data-unit-id="${unit.id}"
-                            data-unit-number="${unit.numero}"
-                            data-unit-price="${unit.precio}"
-                            data-unit-area="${unit.area}">
-                            ${ICONS.heart} Me Interesa
+                        <button
+                            class="bimcord-close-button"
+                            style="${WIDGET_STYLES.closeButton}"
+                            type="button">
+                            ${ICONS.close}
                         </button>
-                    </td>
-                </tr>
-            `;
-        }
-
-        addEventListeners() {
-            // Event listeners para botones "Me Interesa"
-            const interestButtons = this.container.querySelectorAll('.bimcord-interest-button');
-            interestButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const unitId = e.target.getAttribute('data-unit-id');
-                    const unitNumber = e.target.getAttribute('data-unit-number');
-                    const unitPrice = e.target.getAttribute('data-unit-price');
-                    const unitArea = e.target.getAttribute('data-unit-area');
+                    </div>
                     
-                    this.showInterestModal({
-                        id: unitId,
-                        numero: unitNumber,
-                        precio: unitPrice,
-                        area: unitArea
-                    });
-                });
-            });
-        }
+                    <div style="${WIDGET_STYLES.modalBody}">
+                        <form class="bimcord-interest-form">
+                            <!-- Hidden fields for unit and project data -->
+                            <input type="hidden" name="unitId" value="${unit.id}" />
+                            <input type="hidden" name="unitNumber" value="${unit.numero}" />
+                            <input type="hidden" name="unitPrice" value="${unit.precio}" />
+                            <input type="hidden" name="unitArea" value="${unit.area}" />
+                            <input type="hidden" name="projectId" value="${projectId}" />
 
-        showInterestModal(unit) {
-            // Crear el modal
-            const modalOverlay = document.createElement('div');
-            modalOverlay.className = 'bimcord-modal-overlay';
-            modalOverlay.style.cssText = WIDGET_STYLES.modalOverlay;
-
-            const modalContent = document.createElement('div');
-            modalContent.className = 'bimcord-modal-content';
-            modalContent.style.cssText = WIDGET_STYLES.modalContent;
-
-            modalContent.innerHTML = `
-                <div style="${WIDGET_STYLES.modalHeader}; position: relative;">
-                    <h3 style="${WIDGET_STYLES.modalTitle}">Expresar Interés</h3>
-                    <p style="${WIDGET_STYLES.modalSubtitle}">
-                        Unidad ${unit.numero} - ${unit.area}m² - ${formatCurrency(unit.precio, 'USD')}
-                    </p>
-                    <button 
-                        class="bimcord-close-button" 
-                        style="${WIDGET_STYLES.closeButton}"
-                        type="button">
-                        ${ICONS.close}
-                    </button>
-                </div>
-                
-                <div style="${WIDGET_STYLES.modalBody}">
-                    <form class="bimcord-interest-form">
-                        <!-- Nombres y Apellidos -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="${WIDGET_STYLES.formGroup}">
-                                <label style="${WIDGET_STYLES.formLabel}" for="firstName">
-                                    Nombres <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
-                                </label>
-                                <input 
-                                    type="text" 
-                                    id="firstName" 
-                                    name="firstName" 
-                                    required
-                                    class="bimcord-form-input"
-                                    style="${WIDGET_STYLES.formInput}"
-                                    placeholder="Ej: Juan Carlos">
-                            </div>
-                            
-                            <div style="${WIDGET_STYLES.formGroup}">
-                                <label style="${WIDGET_STYLES.formLabel}" for="lastName">
-                                    Apellidos <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
-                                </label>
-                                <input 
-                                    type="text" 
-                                    id="lastName" 
-                                    name="lastName" 
-                                    required
-                                    class="bimcord-form-input"
-                                    style="${WIDGET_STYLES.formInput}"
-                                    placeholder="Ej: Pérez Gómez">
-                            </div>
-                        </div>
-
-                        <!-- Tipo de Documento -->
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}">
-                                Tipo de Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
-                            </label>
-                            <div style="${WIDGET_STYLES.documentTypeGroup}">
-                                <button type="button" class="document-type-btn" data-type="Cedula" style="${WIDGET_STYLES.documentTypeButtonActive}">
-                                    Cédula
-                                </button>
-                                <button type="button" class="document-type-btn" data-type="RNC" style="${WIDGET_STYLES.documentTypeButton}">
-                                    RNC
-                                </button>
-                                <button type="button" class="document-type-btn" data-type="Pasaporte" style="${WIDGET_STYLES.documentTypeButton}">
-                                    Pasaporte
-                                </button>
-                            </div>
-                            <input type="hidden" id="documentType" name="documentType" value="Cedula" required>
-                        </div>
-
-                        <!-- Número de Documento -->
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="documentNumber">
-                                Número de Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                id="documentNumber" 
-                                name="documentNumber" 
-                                required
-                                class="bimcord-form-input"
-                                style="${WIDGET_STYLES.formInput}"
-                                placeholder="00112345678"
-                                maxlength="11">
-                            <div style="${WIDGET_STYLES.helpText}" class="document-help">
-                                11 dígitos sin guiones
-                            </div>
-                        </div>
-
-                        <!-- Subir Documento -->
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="documentFile">
-                                Subir Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
-                            </label>
-                            <div style="${WIDGET_STYLES.fileInputContainer}">
-                                <input 
-                                    type="file" 
-                                    id="documentFile" 
-                                    name="documentFile" 
-                                    required
-                                    accept="image/*,.pdf"
-                                    class="bimcord-file-input"
-                                    style="${WIDGET_STYLES.fileInputHidden}">
-                                <label 
-                                    for="documentFile" 
-                                    class="bimcord-file-label"
-                                    style="${WIDGET_STYLES.fileInputLabel}">
-                                    ${ICONS.upload}
-                                    <span class="file-label-text">Seleccionar archivo (imagen o PDF)</span>
-                                </label>
-                                <div class="file-preview" style="display: none;"></div>
-                            </div>
-                            <div style="${WIDGET_STYLES.helpText}">
-                                Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
-                            </div>
-                        </div>
-
-                        <!-- Nacionalidad -->
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="nationality">
-                                Nacionalidad <span class="nationality-required" style="${WIDGET_STYLES.requiredAsterisk}; display: none;">*</span>
-                            </label>
-                            <div style="position: relative;">
-                                <div style="${WIDGET_STYLES.searchIcon}">
-                                    ${ICONS.search}
+                            <!-- Nombres y Apellidos -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div style="${WIDGET_STYLES.formGroup}">
+                                    <label style="${WIDGET_STYLES.formLabel}" for="firstName">
+                                        Nombres <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="firstName"
+                                        name="firstName"
+                                        required
+                                        class="bimcord-form-input"
+                                        style="${WIDGET_STYLES.formInput}"
+                                        placeholder="Ej: Juan Carlos">
                                 </div>
-                                <input 
-                                    type="text" 
-                                    id="nationality" 
-                                    name="nationality" 
-                                    class="bimcord-form-input"
-                                    style="${WIDGET_STYLES.inputWithIcon}"
-                                    placeholder="Buscar nacionalidad..."
-                                    autocomplete="off">
-                                <div class="nationality-dropdown" style="${WIDGET_STYLES.nationalityDropdown}; display: none;">
-                                    <!-- Las opciones se generarán dinámicamente -->
+                                
+                                <div style="${WIDGET_STYLES.formGroup}">
+                                    <label style="${WIDGET_STYLES.formLabel}" for="lastName">
+                                        Apellidos <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="lastName"
+                                        name="lastName"
+                                        required
+                                        class="bimcord-form-input"
+                                        style="${WIDGET_STYLES.formInput}"
+                                        placeholder="Ej: Pérez Gómez">
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Fecha de Vencimiento del Documento -->
-                        <div style="${WIDGET_STYLES.formGroup}">
-                            <label style="${WIDGET_STYLES.formLabel}" for="documentExpiry">
-                                Fecha de Vencimiento del Documento <span class="expiry-required" style="${WIDGET_STYLES.requiredAsterisk}; display: none;">*</span>
-                            </label>
-                            <input 
-                                type="date" 
-                                id="documentExpiry" 
-                                name="documentExpiry" 
-                                class="bimcord-form-input"
-                                style="${WIDGET_STYLES.formInput}"
-                                min="${new Date().toISOString().split('T')[0]}">
-                        </div>
-
-                        <!-- Email y Teléfono -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <!-- Tipo de Documento -->
                             <div style="${WIDGET_STYLES.formGroup}">
-                                <label style="${WIDGET_STYLES.formLabel}" for="email">
-                                    Correo Electrónico <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                <label style="${WIDGET_STYLES.formLabel}">
+                                    Tipo de Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
                                 </label>
-                                <input 
-                                    type="email" 
-                                    id="email" 
-                                    name="email" 
+                                <div class="document-type-selector" style="${WIDGET_STYLES.documentTypeGroup}">
+                                    <button type="button" class="document-type-btn active" data-type="Cedula" style="${WIDGET_STYLES.documentTypeButtonActive}">
+                                        Cédula
+                                    </button>
+                                    <button type="button" class="document-type-btn" data-type="RNC" style="${WIDGET_STYLES.documentTypeButton}">
+                                        RNC
+                                    </button>
+                                    <button type="button" class="document-type-btn" data-type="Pasaporte" style="${WIDGET_STYLES.documentTypeButton}">
+                                        Pasaporte
+                                    </button>
+                                </div>
+                                <input type="hidden" id="documentType" name="documentType" value="Cedula" required>
+                            </div>
+
+                            <!-- Número de Documento -->
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="documentNumber">
+                                    Número de Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="documentNumber"
+                                    name="documentNumber"
                                     required
                                     class="bimcord-form-input"
                                     style="${WIDGET_STYLES.formInput}"
-                                    placeholder="ejemplo@correo.com">
+                                    placeholder="00112345678"
+                                    maxlength="11">
+                                <div style="${WIDGET_STYLES.helpText}" class="document-help-text">
+                                    11 dígitos sin guiones
+                                </div>
                             </div>
-                            
+
+                            <!-- Subir Documento -->
                             <div style="${WIDGET_STYLES.formGroup}">
-                                <label style="${WIDGET_STYLES.formLabel}" for="phone">
-                                    Teléfono Celular <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                <label style="${WIDGET_STYLES.formLabel}" for="documentFile">
+                                    Subir Documento <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
                                 </label>
-                                <input 
-                                    type="tel" 
-                                    id="phone" 
-                                    name="phone" 
-                                    required
+                                <div class="bimcord-file-upload-container" style="${WIDGET_STYLES.fileInputContainer}">
+                                    <input
+                                        type="file"
+                                        id="documentFile"
+                                        name="documentFile"
+                                        required
+                                        accept="image/*,.pdf"
+                                        class="bimcord-file-input"
+                                        style="${WIDGET_STYLES.fileInputHidden}">
+                                    <label
+                                        for="documentFile"
+                                        class="bimcord-file-label"
+                                        style="${WIDGET_STYLES.fileInputLabel}">
+                                        ${ICONS.upload}
+                                        <span class="file-label-text">Seleccionar archivo (imagen o PDF)</span>
+                                    </label>
+                                    <div class="file-preview" style="display: none;"></div>
+                                </div>
+                                <div style="${WIDGET_STYLES.helpText}">
+                                    Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+                                </div>
+                            </div>
+
+                            <!-- Nacionalidad -->
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="nationality">
+                                    Nacionalidad <span class="nationality-required" style="${WIDGET_STYLES.requiredAsterisk}; display: none;">*</span>
+                                </label>
+                                <div style="position: relative;">
+                                    <div style="${WIDGET_STYLES.searchIcon}">
+                                        ${ICONS.search}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        id="nationality"
+                                        name="nationality"
+                                        class="bimcord-form-input"
+                                        style="${WIDGET_STYLES.inputWithIcon}"
+                                        placeholder="Buscar nacionalidad..."
+                                        autocomplete="off">
+                                    <div class="nationality-dropdown" style="${WIDGET_STYLES.nationalityDropdown}; display: none;">
+                                        <!-- Las opciones se generarán dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fecha de Vencimiento del Documento -->
+                            <div style="${WIDGET_STYLES.formGroup}">
+                                <label style="${WIDGET_STYLES.formLabel}" for="documentExpiry">
+                                    Fecha de Vencimiento del Documento <span class="expiry-required" style="${WIDGET_STYLES.requiredAsterisk}; display: none;">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    id="documentExpiry"
+                                    name="documentExpiry"
                                     class="bimcord-form-input"
                                     style="${WIDGET_STYLES.formInput}"
-                                    placeholder="+1 (809) 555-1234">
+                                    min="${new Date().toISOString().split('T')[0]}">
                             </div>
-                        </div>
-                    </form>
-                </div>
-                
-                <div style="${WIDGET_STYLES.modalFooter}">
-                    <button 
-                        type="button" 
-                        class="bimcord-cancel-button bimcord-button-secondary"
-                        style="${WIDGET_STYLES.buttonSecondary}">
-                        Cancelar
-                    </button>
-                    <button 
-                        type="submit" 
-                        class="bimcord-submit-button bimcord-button-primary"
-                        style="${WIDGET_STYLES.buttonPrimary}">
-                        Enviar Información
-                    </button>
-                </div>
-            `;
 
-            modalOverlay.appendChild(modalContent);
-            document.body.appendChild(modalOverlay);
+                            <!-- Email y Teléfono -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div style="${WIDGET_STYLES.formGroup}">
+                                    <label style="${WIDGET_STYLES.formLabel}" for="email">
+                                        Correo Electrónico <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        required
+                                        class="bimcord-form-input"
+                                        style="${WIDGET_STYLES.formInput}"
+                                        placeholder="ejemplo@correo.com">
+                                </div>
+                                
+                                <div style="${WIDGET_STYLES.formGroup}">
+                                    <label style="${WIDGET_STYLES.formLabel}" for="phone">
+                                        Teléfono Celular <span style="${WIDGET_STYLES.requiredAsterisk}">*</span>
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="phone"
+                                        name="phone"
+                                        required
+                                        class="bimcord-form-input"
+                                        style="${WIDGET_STYLES.formInput}"
+                                        placeholder="+1 (809) 555-1234">
+                                </div>
+                            </div>
+                            <div class="bimcord-form-message" style="margin-top: 15px;"></div>
+                        </form>
+                    </div>
+                    
+                    <div style="${WIDGET_STYLES.modalFooter}">
+                        <button
+                            type="button"
+                            class="bimcord-cancel-button bimcord-button-secondary"
+                            style="${WIDGET_STYLES.buttonSecondary}">
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            form="bimcord-interest-form"
+                            class="bimcord-submit-button bimcord-button-primary"
+                            style="${WIDGET_STYLES.buttonPrimary}">
+                            Enviar Información
+                        </button>
+                    </div>
+                `;
+                container.appendChild(modalOverlay);
+                modalOverlay.appendChild(modalContent);
 
-            // Guardar referencia del modal actual
-            this.currentModal = modalOverlay;
+                const form = modalContent.querySelector('.bimcord-interest-form');
+                const closeButton = modalContent.querySelector('.bimcord-close-button');
+                const cancelButton = modalContent.querySelector('.bimcord-cancel-button');
+                const submitButton = modalContent.querySelector('.bimcord-submit-button');
+                const formMessageDiv = modalContent.querySelector('.bimcord-form-message');
 
-            // Event listeners del modal
-            this.addModalEventListeners(modalOverlay, unit);
+                const documentTypeInput = modalContent.querySelector('#documentType');
+                const documentNumberInput = modalContent.querySelector('#documentNumber');
+                const documentHelpText = modalContent.querySelector('.document-help-text');
+                const nationalityInput = modalContent.querySelector('#nationality');
+                const nationalityDropdown = modalContent.querySelector('.nationality-dropdown');
+                const nationalityRequired = modalContent.querySelector('.nationality-required');
+                const documentExpiryInput = modalContent.querySelector('#documentExpiry');
+                const expiryRequired = modalContent.querySelector('.expiry-required');
+                const documentFileInput = modalContent.querySelector('#documentFile');
+                const fileLabelText = modalContent.querySelector('.file-label-text');
+                const filePreviewDiv = modalContent.querySelector('.file-preview');
 
-            // Enfocar el primer input
-            setTimeout(() => {
-                const firstInput = modalContent.querySelector('#firstName');
-                if (firstInput) firstInput.focus();
-            }, 100);
-        }
-
-        addModalEventListeners(modalOverlay, unit) {
-            const closeButton = modalOverlay.querySelector('.bimcord-close-button');
-            const cancelButton = modalOverlay.querySelector('.bimcord-cancel-button');
-            const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
-            const form = modalOverlay.querySelector('.bimcord-interest-form');
-
-            // Función para cerrar el modal
-            const closeModal = () => {
-                if (modalOverlay && modalOverlay.parentNode) {
-                    modalOverlay.remove();
-                }
-                this.currentModal = null;
-            };
-
-            // Event listeners para cerrar el modal
-            if (closeButton) {
-                closeButton.addEventListener('click', closeModal);
-            }
-            
-            if (cancelButton) {
-                cancelButton.addEventListener('click', closeModal);
-            }
-
-            // Cerrar modal al hacer click en el overlay
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) {
-                    closeModal();
-                }
-            });
-
-            // Cerrar modal con la tecla Escape
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                    document.removeEventListener('keydown', handleEscape);
-                }
-            };
-            document.addEventListener('keydown', handleEscape);
-
-            // Inicializar funcionalidad de tipo de documento
-            this.initDocumentTypeHandlers(modalOverlay);
-            
-            // Inicializar funcionalidad de nacionalidad
-            this.initNationalityHandlers(modalOverlay);
-
-            // Inicializar funcionalidad de archivo
-            this.initFileUploadHandlers(modalOverlay);
-
-            // Inicializar validación
-            this.initFormValidation(form, submitButton);
-
-            // ... existing code for close handlers ...
-
-            // Manejar envío del formulario
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                
-                // Validar formulario antes de enviar
-                if (!this.validateForm(form)) {
-                    return;
-                }
-                
-                const formData = new FormData(form);
-                const documentFile = formData.get('documentFile');
-
-                const data = {
-                    unitId: unit.id,
-                    unitNumber: unit.numero,
-                    unitPrice: unit.precio,
-                    unitArea: unit.area,
-                    firstName: formData.get('firstName'),
-                    lastName: formData.get('lastName'),
-                    documentType: formData.get('documentType'),
-                    documentNumber: formData.get('documentNumber'),
-                    nationality: formData.get('nationality'),
-                    documentExpiry: formData.get('documentExpiry'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    documentFile: documentFile ? {
-                        name: documentFile.name,
-                        size: documentFile.size,
-                        type: documentFile.type
-                    } : null
+                const documentConfig = {
+                    Cedula: { maxLength: 11, pattern: /^\d{11}$/, placeholder: '00112345678', help: '11 dígitos sin guiones' },
+                    RNC: { maxLength: 9, pattern: /^\d{9}$/, placeholder: '123456789', help: '9 dígitos' },
+                    Pasaporte: { maxLength: 9, pattern: /^[A-Z0-9]{9}$/, placeholder: 'A12345678', help: '9 caracteres (letras y números)' }
                 };
+                const allNationalities = [
+                    'Dominicana', 'Estadounidense', 'Española', 'Mexicana', 'Colombiana', 
+                    'Venezolana', 'Argentina', 'Chilena', 'Peruana', 'Brasileña', 
+                    'Canadiense', 'Italiana', 'Francesa', 'Alemana', 'Británica'
+                ];
 
-                this.handleInterestSubmission(data);
-                closeModal();
-            };
+                let currentDocumentType = 'Cedula';
 
-            submitButton.addEventListener('click', handleSubmit);
-            form.addEventListener('submit', handleSubmit);
-        }
+                const updateDocumentTypeUI = (type) => {
+                    currentDocumentType = type;
+                    documentTypeInput.value = type;
+                    documentNumberInput.value = ''; // Clear number when type changes
+                    documentNumberInput.maxLength = documentConfig[type].maxLength;
+                    documentNumberInput.placeholder = documentConfig[type].placeholder;
+                    documentHelpText.textContent = documentConfig[type].help;
 
-        // Nueva función para inicializar la validación del formulario
-        initFormValidation(form, submitButton) {
-            const inputs = form.querySelectorAll('input[required]');
-            
-            // Deshabilitar botón inicialmente
-            this.updateSubmitButton(submitButton, false);
-            
-            inputs.forEach(input => {
-                // Validación en tiempo real
-                input.addEventListener('input', () => {
-                    this.validateField(input);
-                    this.updateSubmitButton(submitButton, this.isFormValid(form));
-                });
-                
-                input.addEventListener('blur', () => {
-                    this.validateField(input);
-                    this.updateSubmitButton(submitButton, this.isFormValid(form));
-                });
-            });
-        }
-
-                // Nueva función para manejar la subida de archivos
-        initFileUploadHandlers(modalOverlay) {
-            const fileInput = modalOverlay.querySelector('#documentFile');
-            const fileLabel = modalOverlay.querySelector('.bimcord-file-label');
-            const fileLabelText = modalOverlay.querySelector('.file-label-text');
-            const filePreview = modalOverlay.querySelector('.file-preview');
-
-            if (!fileInput || !fileLabel || !fileLabelText || !filePreview) {
-                console.warn('Elementos de archivo no encontrados');
-                return;
-            }
-
-            // Agregar estilos hover al label
-            fileLabel.addEventListener('mouseenter', () => {
-                fileLabel.style.cssText = WIDGET_STYLES.fileInputLabel + '; ' + WIDGET_STYLES.fileInputLabelHover;
-            });
-
-            fileLabel.addEventListener('mouseleave', () => {
-                fileLabel.style.cssText = WIDGET_STYLES.fileInputLabel;
-            });
-
-            // Manejar cambio de archivo
-            fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                
-                if (file) {
-                    // Validar tamaño del archivo (5MB máximo)
-                    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-                    if (file.size > maxSize) {
-                        this.showFieldError(fileInput, 'El archivo es demasiado grande. Máximo 5MB.');
-                        fileInput.value = '';
-                        return;
-                    }
-
-                    // Validar tipo de archivo
-                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-                    if (!allowedTypes.includes(file.type)) {
-                        this.showFieldError(fileInput, 'Tipo de archivo no permitido. Use JPG, PNG o PDF.');
-                        fileInput.value = '';
-                        return;
-                    }
-
-                    // Mostrar preview del archivo
-                    fileLabelText.textContent = `Archivo seleccionado: ${file.name}`;
-                    filePreview.style.cssText = WIDGET_STYLES.filePreview;
-                    filePreview.style.display = 'block';
-                    filePreview.innerHTML = `
-                        <strong>Archivo:</strong> ${file.name}<br>
-                        <strong>Tamaño:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
-                        <strong>Tipo:</strong> ${file.type}
-                    `;
-
-                    // Limpiar errores
-                    this.clearFieldError(fileInput);
-
-                    // Revalidar el formulario
-                    const form = modalOverlay.querySelector('.bimcord-interest-form');
-                    const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
-                    this.updateSubmitButton(submitButton, this.isFormValid(form));
-                } else {
-                    // Resetear si no hay archivo
-                    fileLabelText.textContent = 'Seleccionar archivo (imagen o PDF)';
-                    filePreview.style.display = 'none';
-                }
-            });
-        }
-
-
-
-        initDocumentTypeHandlers(modalOverlay) {
-            const documentButtons = modalOverlay.querySelectorAll('.document-type-btn');
-            const documentTypeInput = modalOverlay.querySelector('#documentType');
-            const documentNumberInput = modalOverlay.querySelector('#documentNumber');
-            const helpText = modalOverlay.querySelector('.document-help');
-            const nationalityRequired = modalOverlay.querySelector('.nationality-required');
-            const expiryRequired = modalOverlay.querySelector('.expiry-required');
-            const nationalityInput = modalOverlay.querySelector('#nationality');
-            const expiryInput = modalOverlay.querySelector('#documentExpiry');
-
-            documentButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const documentType = button.dataset.type;
-                    
-                    // Actualizar botones activos
-                    documentButtons.forEach(btn => {
-                        btn.style.cssText = WIDGET_STYLES.documentTypeButton;
+                    // Update active button style
+                    modalContent.querySelectorAll('.document-type-btn').forEach(btn => {
+                        if (btn.dataset.type === type) {
+                            btn.style.cssText = WIDGET_STYLES.documentTypeButtonActive;
+                            btn.classList.add('active');
+                        } else {
+                            btn.style.cssText = WIDGET_STYLES.documentTypeButton;
+                            btn.classList.remove('active');
+                        }
                     });
-                    button.style.cssText = WIDGET_STYLES.documentTypeButtonActive;
-                    
-                    // Actualizar valor del input hidden
-                    documentTypeInput.value = documentType;
-                    
-                    // Actualizar configuración del campo número de documento
-                    const config = DOCUMENT_CONFIG[documentType];
-                    if (config) {
-                        documentNumberInput.placeholder = config.placeholder;
-                        documentNumberInput.maxLength = config.maxLength;
-                        helpText.textContent = config.description;
-                    }
-                    
-                    // Mostrar/ocultar campos requeridos según el tipo de documento
-                    if (documentType === 'Pasaporte') {
+
+                    // Show/hide required for nationality/expiry
+                    if (type === 'Pasaporte') {
                         nationalityRequired.style.display = 'inline';
                         expiryRequired.style.display = 'inline';
                         nationalityInput.required = true;
-                        expiryInput.required = true;
+                        documentExpiryInput.required = true;
                     } else {
                         nationalityRequired.style.display = 'none';
                         expiryRequired.style.display = 'none';
                         nationalityInput.required = false;
-                        expiryInput.required = false;
-                        nationalityInput.value = '';
-                        expiryInput.value = '';
+                        documentExpiryInput.required = false;
                     }
-                    
-                    // Limpiar errores del campo número de documento
-                    this.clearFieldError(documentNumberInput);
-                    
-                    // Revalidar el formulario
-                    const form = modalOverlay.querySelector('.bimcord-interest-form');
-                    const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
-                    this.updateSubmitButton(submitButton, this.isFormValid(form));
+                };
+
+                // Initial UI setup for document type
+                updateDocumentTypeUI('Cedula');
+
+                // Event listeners for document type buttons
+                modalContent.querySelectorAll('.document-type-btn').forEach(btn => {
+                    btn.addEventListener('click', () => updateDocumentTypeUI(btn.dataset.type));
                 });
-            });
-        }
 
-        // Nueva función para manejar el dropdown de nacionalidades
-        initNationalityHandlers(modalOverlay) {
-            const nationalityInput = modalOverlay.querySelector('#nationality');
-            const dropdown = modalOverlay.querySelector('.nationality-dropdown');
-            
-            if (!nationalityInput || !dropdown) {
-                console.warn('Elementos de nacionalidad no encontrados');
-                return;
-            }
-            
-            let filteredNationalities = [...NACIONALIDADES];
-            
-            // Función para renderizar opciones
-            const renderOptions = (nationalities) => {
-                dropdown.innerHTML = '';
-                
-                if (nationalities.length === 0) {
-                    dropdown.innerHTML = `
-                        <div style="${WIDGET_STYLES.nationalityOption}; color: #6b7280;">
-                            No se encontraron resultados
+                // Document number input formatting
+                documentNumberInput.addEventListener('input', (e) => {
+                    let value = e.target.value;
+                    if (currentDocumentType === 'Cedula' || currentDocumentType === 'RNC') {
+                        value = value.replace(/\D/g, ''); // Only digits
+                    } else if (currentDocumentType === 'Pasaporte') {
+                        value = value.toUpperCase().replace(/[^A-Z0-9]/g, ''); // Alphanumeric uppercase
+                    }
+                    e.target.value = value.substring(0, documentConfig[currentDocumentType].maxLength);
+                });
+
+                // Nationality search and dropdown
+                nationalityInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filtered = allNationalities.filter(n => n.toLowerCase().includes(searchTerm));
+                    nationalityDropdown.innerHTML = '';
+                    if (filtered.length > 0 && searchTerm.length > 0) {
+                        filtered.forEach(n => {
+                            const div = document.createElement('div');
+                            div.textContent = n;
+                            div.style.cssText = 'padding: 8px 10px; cursor: pointer; transition: background-color 0.1s ease;';
+                            div.onmouseover = () => div.style.backgroundColor = '#f0f4ff';
+                            div.onmouseout = () => div.style.backgroundColor = 'white';
+                            div.onclick = () => {
+                                nationalityInput.value = n;
+                                nationalityDropdown.style.display = 'none';
+                            };
+                            nationalityDropdown.appendChild(div);
+                        });
+                        nationalityDropdown.style.display = 'block';
+                    } else {
+                        nationalityDropdown.style.display = 'none';
+                    }
+                });
+                nationalityInput.addEventListener('focus', () => {
+                    if (nationalityInput.value.length > 0) nationalityDropdown.style.display = 'block';
+                });
+                nationalityInput.addEventListener('blur', () => {
+                    setTimeout(() => nationalityDropdown.style.display = 'none', 100); // Delay to allow click on dropdown item
+                });
+
+                // File input change and preview
+                documentFileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        fileLabelText.textContent = file.name;
+                        filePreviewDiv.style.display = 'block';
+                        filePreviewDiv.innerHTML = ''; // Clear previous preview
+
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                filePreviewDiv.innerHTML = `<img src="${event.target.result}" style="max-width: 100%; height: auto; max-height: 100px; margin-top: 10px; border-radius: 5px;">`;
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.type === 'application/pdf') {
+                            filePreviewDiv.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; margin-top: 10px; color: #ef4444;">${ICONS.fileText} PDF Seleccionado</div>`;
+                        }
+                    } else {
+                        fileLabelText.textContent = 'Seleccionar archivo (imagen o PDF)';
+                        filePreviewDiv.style.display = 'none';
+                    }
+                });
+
+
+                // Close modal event listeners
+                closeButton.addEventListener('click', () => modalOverlay.remove());
+                cancelButton.addEventListener('click', () => modalOverlay.remove());
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) {
+                        modalOverlay.remove();
+                    }
+                });
+
+                // Form submission logic
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    formMessageDiv.textContent = ''; // Clear previous messages
+                    formMessageDiv.className = 'bimcord-form-message'; // Reset class
+
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Enviando...';
+
+                    const formData = new FormData(form);
+
+                    // Add unit and project data from the button's dataset
+                    formData.append('unitId', unit.id);
+                    formData.append('unitNumber', unit.numero);
+                    formData.append('unitPrice', unit.precio);
+                    formData.append('unitArea', unit.area);
+                    formData.append('projectId', projectId); // From widget options
+
+                    // Handle empty date field for documentExpiry
+                    if (formData.get('documentExpiry') === '') {
+                        formData.set('documentExpiry', ''); 
+                    }
+
+                    try {
+                        const response = await fetch(`${apiBaseUrl}/api/auth/public-client-interest/`, {
+                            method: 'POST',
+                            body: formData,
+                        });
+
+                        const responseData = await response.json();
+
+                        if (response.ok) {
+                            formMessageDiv.textContent = responseData.message || '¡Gracias por tu interés! Nos pondremos en contacto pronto.';
+                            formMessageDiv.classList.add('bimcord-success');
+                            form.reset(); // Clear the form
+                            // Optionally close modal after a delay
+                            setTimeout(() => modalOverlay.remove(), 3000);
+                        } else {
+                            let errorMessage = 'Error al registrar tu interés. Por favor, intenta de nuevo.';
+                            if (responseData.detail) {
+                                errorMessage = responseData.detail;
+                            } else if (responseData.error) {
+                                errorMessage = responseData.error;
+                            } else if (typeof responseData === 'object') {
+                                // Attempt to parse field-specific errors
+                                errorMessage = Object.values(responseData).flat().join('; ');
+                            }
+                            formMessageDiv.textContent = errorMessage;
+                            formMessageDiv.classList.add('bimcord-error');
+                        }
+                    } catch (error) {
+                        console.error('Error de red o inesperado:', error);
+                        formMessageDiv.textContent = 'Ocurrió un error de conexión. Por favor, verifica tu internet e intenta de nuevo.';
+                        formMessageDiv.classList.add('bimcord-error');
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Enviar Información';
+                    }
+                });
+            };
+
+            // --- Main Widget Rendering Logic ---
+
+            showLoading('Cargando lista de precios...');
+
+            fetch(`${apiBaseUrl}/api/projects/public-listas-precios/?proyecto_id=${projectId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.detail || 'Error al cargar la lista de precios.'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) {
+                        showError('No se encontró un listado de precios público para este proyecto.');
+                        return;
+                    }
+
+                    let widgetHtml = `
+                        <div class="ppl-header">
+                            <h1 class="ppl-project-name">${data.proyecto_detail.nombre}</h1>
+                            <p class="ppl-list-title">Lista de Precios Pública</p>
+                            ${data.proyecto_detail.imagen ? `<img src="${data.proyecto_detail.imagen}" alt="${data.proyecto_detail.nombre}" class="ppl-project-image">` : ''}
                         </div>
+                        <div class="ppl-blocks-container">
                     `;
-                } else {
-                    nationalities.forEach(nationality => {
-                        const option = document.createElement('div');
-                        option.style.cssText = WIDGET_STYLES.nationalityOption;
-                        option.textContent = nationality;
-                        option.addEventListener('click', () => {
-                            nationalityInput.value = nationality;
-                            dropdown.style.display = 'none';
-                            this.clearFieldError(nationalityInput);
-                            
-                            // Revalidar el formulario
-                            const form = modalOverlay.querySelector('.bimcord-interest-form');
-                            const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
-                            this.updateSubmitButton(submitButton, this.isFormValid(form));
+
+                    if (data.blocks_with_units && data.blocks_with_units.length > 0) {
+                        data.blocks_with_units.forEach(block => {
+                            widgetHtml += `
+                                <div class="ppl-block-card">
+                                    <h2 class="ppl-block-title">${block.nombre} (${block.tipo})</h2>
+                                    <div class="ppl-units-table-wrapper">
+                                        <table class="ppl-units-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Unidad</th>
+                                                    <th>Nivel</th>
+                                                    <th>Área (m²)</th>
+                                                    <th>Precio</th>
+                                                    <th>Estado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                            `;
+                            if (block.units && block.units.length > 0) {
+                                block.units.filter(unit => unit.estado === 'Disponible').forEach(unit => {
+                                    widgetHtml += `
+                                        <tr>
+                                            <td>${unit.numero}</td>
+                                            <td>${unit.nivel}</td>
+                                            <td>${unit.area}</td>
+                                            <td>${formatCurrency(unit.precio)}</td>
+                                            <td><span class="ppl-unit-status ppl-status-available">${unit.estado}</span></td>
+                                            <td>
+                                                <button class="ppl-interest-button" 
+                                                        data-unit-id="${unit.id}" 
+                                                        data-unit-numero="${unit.numero}"
+                                                        data-unit-nivel="${unit.nivel}"
+                                                        data-unit-block-name="${block.nombre}"
+                                                        data-unit-precio="${unit.precio}"
+                                                        data-unit-area="${unit.area}"
+                                                        data-project-name="${data.proyecto_detail.nombre}"
+                                                        >Me Interesa</button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                });
+                            } else {
+                                widgetHtml += `<tr><td colspan="6" class="ppl-no-units">No hay unidades disponibles en este bloque.</td></tr>`;
+                            }
+                            widgetHtml += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            `;
                         });
-                        option.addEventListener('mouseenter', () => {
-                            option.style.backgroundColor = '#f3f4f6';
+                    } else {
+                        widgetHtml += `<div class="ppl-no-blocks">No hay bloques asociados a esta lista de precios.</div>`;
+                    }
+
+                    widgetHtml += `</div>`; // Close ppl-blocks-container
+                    container.innerHTML = widgetHtml;
+
+                    // Add event listeners for "Me Interesa" buttons
+                    container.querySelectorAll('.ppl-interest-button').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const btn = e.target;
+                            const unitData = {
+                                id: btn.dataset.unitId,
+                                numero: btn.dataset.unitNumero,
+                                nivel: btn.dataset.unitNivel,
+                                block_name: btn.dataset.unitBlockName,
+                                precio: btn.dataset.unitPrecio,
+                                area: btn.dataset.unitArea,
+                                project_name: btn.dataset.projectName,
+                            };
+                            showInterestModal(unitData); // Call the modal function
                         });
-                        option.addEventListener('mouseleave', () => {
-                            option.style.backgroundColor = 'transparent';
-                        });
-                        dropdown.appendChild(option);
                     });
-                }
-            };
-            
-            // Mostrar dropdown al hacer focus
-            nationalityInput.addEventListener('focus', () => {
-                renderOptions(filteredNationalities);
-                dropdown.style.display = 'block';
-            });
-            
-            // Filtrar mientras se escribe
-            nationalityInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                filteredNationalities = NACIONALIDADES.filter(nationality =>
-                    nationality.toLowerCase().includes(searchTerm)
-                );
-                renderOptions(filteredNationalities);
-                dropdown.style.display = 'block';
-            });
-            
-            // Ocultar dropdown al hacer click fuera
-            const hideDropdown = (e) => {
-                if (!nationalityInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.style.display = 'none';
-                }
-            };
-            
-            document.addEventListener('click', hideDropdown);
-            
-            // Limpiar el event listener cuando se cierre el modal
-            modalOverlay.addEventListener('remove', () => {
-                document.removeEventListener('click', hideDropdown);
-            });
+
+                })
+                .catch(error => {
+                    console.error('PublicPriceList: Failed to load price list:', error);
+                    showError(error.message || 'Error al cargar la lista de precios.');
+                });
         }
-
-        // Actualizar función de validación de campos
-        validateField(input) {
-            const value = input.value.trim();
-            const fieldName = input.name;
-            let isValid = true;
-            let errorMessage = '';
-
-            // Limpiar errores previos
-            this.clearFieldError(input);
-
-            // Validaciones específicas por campo
-            switch (fieldName) {
-                case 'firstName':
-                case 'lastName':
-                    if (!value) {
-                        isValid = false;
-                        errorMessage = 'Este campo es obligatorio';
-                    } else if (value.length < 2) {
-                        isValid = false;
-                        errorMessage = 'Debe tener al menos 2 caracteres';
-                    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
-                        isValid = false;
-                        errorMessage = 'Solo se permiten letras y espacios';
-                    }
-                    break;
-
-                case 'documentNumber':
-                    const documentType = document.querySelector('#documentType').value;
-                    const config = DOCUMENT_CONFIG[documentType];
-                    
-                    if (!value) {
-                        isValid = false;
-                        errorMessage = 'El número de documento es obligatorio';
-                    } else if (!config.pattern.test(value)) {
-                        isValid = false;
-                        errorMessage = `Formato inválido. ${config.description}`;
-                    }
-                    break;
-
-                case 'nationality':
-                    const isPassport = document.querySelector('#documentType').value === 'Pasaporte';
-                    if (isPassport && !value) {
-                        isValid = false;
-                        errorMessage = 'La nacionalidad es requerida para pasaportes';
-                    }
-                    break;
-
-                case 'documentExpiry':
-                    const isPassportExpiry = document.querySelector('#documentType').value === 'Pasaporte';
-                    if (isPassportExpiry && !value) {
-                        isValid = false;
-                        errorMessage = 'La fecha de vencimiento es requerida para pasaportes';
-                    } else if (value && new Date(value) <= new Date()) {
-                        isValid = false;
-                        errorMessage = 'La fecha debe ser futura';
-                    }
-                    break;
-
-                case 'email':
-                    if (!value) {
-                        isValid = false;
-                        errorMessage = 'El correo electrónico es obligatorio';
-                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                        isValid = false;
-                        errorMessage = 'Ingresa un correo electrónico válido';
-                    }
-                    break;
-
-                case 'phone':
-                    if (!value) {
-                        isValid = false;
-                        errorMessage = 'El teléfono es obligatorio';
-                    } else if (!/^[\d\s\-\(\)\+]+$/.test(value)) {
-                        isValid = false;
-                        errorMessage = 'Formato de teléfono inválido';
-                    } else if (value.replace(/\D/g, '').length < 10) {
-                        isValid = false;
-                        errorMessage = 'El teléfono debe tener al menos 10 dígitos';
-                    }
-                    break;
-            }
-
-            if (!isValid) {
-                this.showFieldError(input, errorMessage);
-            }
-
-            return isValid;
-        }
-
-        // Función para mostrar error en un campo
-        showFieldError(input, message) {
-            input.style.cssText = WIDGET_STYLES.formInputError;
-            
-            // Crear o actualizar mensaje de error
-            let errorElement = input.parentNode.querySelector('.bimcord-error-message');
-            if (!errorElement) {
-                errorElement = document.createElement('span');
-                errorElement.className = 'bimcord-error-message';
-                errorElement.style.cssText = WIDGET_STYLES.formErrorMessage;
-                input.parentNode.appendChild(errorElement);
-            }
-            errorElement.textContent = message;
-        }
-
-        // Función para limpiar errores de un campo
-        clearFieldError(input) {
-            input.style.cssText = WIDGET_STYLES.formInput;
-            
-            const errorElement = input.parentNode.querySelector('.bimcord-error-message');
-            if (errorElement) {
-                errorElement.remove();
-            }
-        }
-
-        // Función para validar todo el formulario
-        validateForm(form) {
-            const inputs = form.querySelectorAll('input[required]');
-            let isValid = true;
-
-            inputs.forEach(input => {
-                if (!this.validateField(input)) {
-                    isValid = false;
-                }
-            });
-
-            return isValid;
-        }
-
-        // Función para verificar si el formulario es válido
-        isFormValid(form) {
-            const inputs = form.querySelectorAll('input[required]');
-            
-            for (let input of inputs) {
-                if (input.type === 'file') {
-                    if (!input.files || input.files.length === 0) return false;
-                } else {
-                    const value = input.value.trim();
-                    if (!value) return false;
-                }
-                
-                // Verificar que no haya errores visibles
-                const errorElement = input.parentNode.querySelector('.bimcord-error-message');
-                if (errorElement) return false;
-            }
-            
-            return true;
-        }
-
-        // Función para actualizar el estado del botón de envío
-        updateSubmitButton(button, isEnabled) {
-            if (isEnabled) {
-                button.style.cssText = WIDGET_STYLES.buttonPrimary;
-                button.disabled = false;
-                button.textContent = 'Enviar Información';
-            } else {
-                button.style.cssText = WIDGET_STYLES.buttonDisabled;
-                button.disabled = true;
-                button.textContent = 'Complete todos los campos';
-            }
-        }
-
-        handleInterestSubmission(data, formData) {
-            // Console.log adicional para debugging
-            console.log('=== FUNCIÓN handleInterestSubmission ===');
-            console.log('Data object:', data);
-            console.log('FormData object:', formData);
-            
-            // Iterar sobre FormData para ver todos los campos
-            console.log('=== CONTENIDO DE FORMDATA ===');
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
-            }
-            console.log('===============================');
-            
-            // Mostrar mensaje de confirmación temporal
-            alert(`¡Gracias ${data.firstName}! Hemos recibido tu interés en la unidad ${data.unitNumber}. Nos pondremos en contacto contigo pronto.`);
-        }
-
-        // Método público para actualizar configuración
-        updateConfig(newConfig) {
-            this.config = { ...this.config, ...newConfig };
-            this.loadData();
-        }
-
-        // Método público para destruir el widget
-        destroy() {
-            if (this.currentModal) {
-                this.currentModal.remove();
-                this.currentModal = null;
-            }
-            
-            if (this.container) {
-                this.container.innerHTML = '';
-                this.container.style.cssText = '';
-            }
-        }
-    }
-
-    // API pública
-    const PublicPriceListAPI = {
-        init: function(containerId, config = {}) {
-            return new PublicPriceList(containerId, config);
-        },
-        
-        version: '2.1.0'
     };
-
-    // Exponer API globalmente
-    global.PublicPriceList = PublicPriceListAPI;
-
-})(window);
+})();
