@@ -587,8 +587,13 @@
         </svg>`,
         heart: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>`,
+        search: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
         </svg>`
     };
+
 
     // Agregar estilos de animación al documento
     const addAnimationStyles = () => {
@@ -1194,10 +1199,72 @@
         }
 
 
+        initDocumentTypeHandlers(modalOverlay) {
+            const documentButtons = modalOverlay.querySelectorAll('.document-type-btn');
+            const documentTypeInput = modalOverlay.querySelector('#documentType');
+            const documentNumberInput = modalOverlay.querySelector('#documentNumber');
+            const helpText = modalOverlay.querySelector('.document-help');
+            const nationalityRequired = modalOverlay.querySelector('.nationality-required');
+            const expiryRequired = modalOverlay.querySelector('.expiry-required');
+            const nationalityInput = modalOverlay.querySelector('#nationality');
+            const expiryInput = modalOverlay.querySelector('#documentExpiry');
+
+            documentButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const documentType = button.dataset.type;
+                    
+                    // Actualizar botones activos
+                    documentButtons.forEach(btn => {
+                        btn.style.cssText = WIDGET_STYLES.documentTypeButton;
+                    });
+                    button.style.cssText = WIDGET_STYLES.documentTypeButtonActive;
+                    
+                    // Actualizar valor del input hidden
+                    documentTypeInput.value = documentType;
+                    
+                    // Actualizar configuración del campo número de documento
+                    const config = DOCUMENT_CONFIG[documentType];
+                    if (config) {
+                        documentNumberInput.placeholder = config.placeholder;
+                        documentNumberInput.maxLength = config.maxLength;
+                        helpText.textContent = config.description;
+                    }
+                    
+                    // Mostrar/ocultar campos requeridos según el tipo de documento
+                    if (documentType === 'Pasaporte') {
+                        nationalityRequired.style.display = 'inline';
+                        expiryRequired.style.display = 'inline';
+                        nationalityInput.required = true;
+                        expiryInput.required = true;
+                    } else {
+                        nationalityRequired.style.display = 'none';
+                        expiryRequired.style.display = 'none';
+                        nationalityInput.required = false;
+                        expiryInput.required = false;
+                        nationalityInput.value = '';
+                        expiryInput.value = '';
+                    }
+                    
+                    // Limpiar errores del campo número de documento
+                    this.clearFieldError(documentNumberInput);
+                    
+                    // Revalidar el formulario
+                    const form = modalOverlay.querySelector('.bimcord-interest-form');
+                    const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
+                    this.updateSubmitButton(submitButton, this.isFormValid(form));
+                });
+            });
+        }
+
         // Nueva función para manejar el dropdown de nacionalidades
         initNationalityHandlers(modalOverlay) {
             const nationalityInput = modalOverlay.querySelector('#nationality');
             const dropdown = modalOverlay.querySelector('.nationality-dropdown');
+            
+            if (!nationalityInput || !dropdown) {
+                console.warn('Elementos de nacionalidad no encontrados');
+                return;
+            }
             
             let filteredNationalities = [...NACIONALIDADES];
             
@@ -1220,6 +1287,11 @@
                             nationalityInput.value = nationality;
                             dropdown.style.display = 'none';
                             this.clearFieldError(nationalityInput);
+                            
+                            // Revalidar el formulario
+                            const form = modalOverlay.querySelector('.bimcord-interest-form');
+                            const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
+                            this.updateSubmitButton(submitButton, this.isFormValid(form));
                         });
                         option.addEventListener('mouseenter', () => {
                             option.style.backgroundColor = '#f3f4f6';
@@ -1249,10 +1321,17 @@
             });
             
             // Ocultar dropdown al hacer click fuera
-            document.addEventListener('click', (e) => {
+            const hideDropdown = (e) => {
                 if (!nationalityInput.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.style.display = 'none';
                 }
+            };
+            
+            document.addEventListener('click', hideDropdown);
+            
+            // Limpiar el event listener cuando se cierre el modal
+            modalOverlay.addEventListener('remove', () => {
+                document.removeEventListener('click', hideDropdown);
             });
         }
 
