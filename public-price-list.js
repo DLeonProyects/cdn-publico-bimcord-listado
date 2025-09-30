@@ -530,7 +530,63 @@
         line-height: 1rem;
         color: #6b7280;
         font-family: 'Poppins', sans-serif;
-    `
+    `,
+    fileInputContainer: `
+            position: relative;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+        `,
+        fileInputLabel: `
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background-color: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Poppins', sans-serif;
+            min-height: 3rem;
+        `,
+        fileInputLabelHover: `
+            background-color: #f3f4f6;
+            border-color: #2563eb;
+            color: #2563eb;
+        `,
+        fileInputHidden: `
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        `,
+        filePreview: `
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            color: #0369a1;
+            font-family: 'Poppins', sans-serif;
+        `,
+        uploadIcon: `
+            width: 1.25rem;
+            height: 1.25rem;
+            color: currentColor;
+        `
     };
 
     const NACIONALIDADES = [
@@ -591,6 +647,11 @@
         search: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
+        </svg>`,
+        upload: `<svg style="${WIDGET_STYLES.uploadIcon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7,10 12,15 17,10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>`
     };
 
@@ -1132,6 +1193,39 @@
             const cancelButton = modalOverlay.querySelector('.bimcord-cancel-button');
             const submitButton = modalOverlay.querySelector('.bimcord-submit-button');
             const form = modalOverlay.querySelector('.bimcord-interest-form');
+
+            // Función para cerrar el modal
+            const closeModal = () => {
+                if (modalOverlay && modalOverlay.parentNode) {
+                    modalOverlay.remove();
+                }
+                this.currentModal = null;
+            };
+
+            // Event listeners para cerrar el modal
+            if (closeButton) {
+                closeButton.addEventListener('click', closeModal);
+            }
+            
+            if (cancelButton) {
+                cancelButton.addEventListener('click', closeModal);
+            }
+
+            // Cerrar modal al hacer click en el overlay
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+            // Cerrar modal con la tecla Escape
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
 
             // Inicializar funcionalidad de tipo de documento
             this.initDocumentTypeHandlers(modalOverlay);
