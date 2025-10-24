@@ -289,6 +289,7 @@
             left: 0;
             right: 0;
             bottom: 0;
+            background-color: rgba(0, 0, 0, 0.35);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             display: flex;
@@ -296,6 +297,7 @@
             justify-content: center;
             z-index: 1000;
             padding: 1rem;
+            will-change: backdrop-filter;
         `,
         modalContent: `
             background-color: white;
