@@ -287,7 +287,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.45);
-            background-image: radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 60%);
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 20%);
             display: flex;
             align-items: center;
             justify-content: center;
