@@ -150,7 +150,9 @@
             color: #a8a29e;
         `,
         tableContainer: `
-            overflow-x: auto;
+            overflow: visible;
+            position: relative;
+            width: 100%;
         `,
         table: `
             min-width: 100%;
@@ -170,6 +172,7 @@
             text-transform: uppercase;
             letter-spacing: 0.08em;
             border-bottom: 1px solid #44403c;
+            white-space: nowrap;
         `,
         tableBody: `
             background-color: transparent;
@@ -760,6 +763,42 @@
         }
     }
 
+    // Auto-escalado de tablas para que quepan en el viewport sin scroll
+    function autoScaleTablesToViewport(container) {
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const tables = container.querySelectorAll('table');
+        tables.forEach(table => {
+            // Reset transform para medir tamaño natural
+            table.style.transform = 'none';
+            table.style.transformOrigin = 'top left';
+
+            const tableRect = table.getBoundingClientRect();
+            const parentRect = table.parentElement.getBoundingClientRect();
+
+            const tableHeight = tableRect.height;
+            const tableWidth = tableRect.width;
+
+            const availableHeight = Math.max(0, viewportHeight - parentRect.top - 24); // margen inferior
+            const availableWidth = parentRect.width; // usamos el ancho del contenedor
+
+            const scaleH = availableHeight / tableHeight;
+            const scaleW = availableWidth / tableWidth;
+            const scale = Math.min(1, scaleH, scaleW);
+
+            if (scale < 1 && isFinite(scale) && scale > 0) {
+                table.style.transform = `scale(${scale})`;
+                table.style.transformOrigin = 'top left';
+                table.parentElement.style.height = `${tableHeight * scale}px`;
+                table.parentElement.style.overflow = 'hidden';
+            } else {
+                // Revertir si cabe naturalmente
+                table.style.transform = 'none';
+                table.parentElement.style.height = 'auto';
+                table.parentElement.style.overflow = 'visible';
+            }
+        });
+    }
+
     class PublicPriceList {
         constructor(containerId, config = {}) {
             this.containerId = containerId;
@@ -893,6 +932,10 @@
 
             // Agregar event listeners para los botones "Me Interesa"
             this.addEventListeners();
+
+            // Aplicar auto-escalado para que las tablas se vean completas sin scroll
+            autoScaleTablesToViewport(this.container);
+            window.addEventListener('resize', () => autoScaleTablesToViewport(this.container));
         }
 
         getBlocksHtml() {
