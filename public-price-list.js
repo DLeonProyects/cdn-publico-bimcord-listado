@@ -285,14 +285,22 @@
         // Estilos para el modal
         modalOverlay: `
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-            background-image: radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 20%);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                rgba(0, 0, 0, 0.6),
+                rgba(0, 0, 0, 0.4)
+            );
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 1rem;
+            will-change: backdrop-filter;
         `,
         modalContent: `
             background-color: white;
