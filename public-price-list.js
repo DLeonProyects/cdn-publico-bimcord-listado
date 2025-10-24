@@ -26,7 +26,7 @@
         `,
         fullScreen: `
             min-height: 100vh;
-            background-color: #f9fafb;
+            background-color: transparent;
             padding: 1.5rem;
         `,
         embedded: `
@@ -884,7 +884,6 @@
 
                     <!-- Contenido principal -->
                     <div>
-                        <h2 style="${WIDGET_STYLES.sectionTitle}">Unidades Disponibles</h2>
                         
                         ${this.getEmptyStateHtml()}
                         ${this.getBlocksHtml()}
