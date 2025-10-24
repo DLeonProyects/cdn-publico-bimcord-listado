@@ -312,8 +312,12 @@
             backdrop-filter: none;
         `,
         modalHeader: `
-            padding: 2rem 2rem 1.5rem 2rem;
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 2rem 2rem 1rem 2rem;
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
         `,
         modalTitle: `
             font-size: 1.875rem;
