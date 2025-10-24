@@ -289,27 +289,27 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                rgba(0, 0, 0, 0.6),
-                rgba(0, 0, 0, 0.4)
-            );
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 9999;
             padding: 1rem;
             will-change: backdrop-filter;
         `,
         modalContent: `
             background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
             width: 100%;
             max-width: 32rem;
             max-height: 90vh;
             overflow-y: auto;
+            backdrop-filter: none;
         `,
         modalHeader: `
             padding: 2rem 2rem 1.5rem 2rem;
@@ -1059,11 +1059,11 @@
         showInterestModal(unit) {
             // Crear el modal
             const modalOverlay = document.createElement('div');
-            modalOverlay.className = 'bimcord-modal-overlay';
+            modalOverlay.className = 'bimcord-modal-overlay public-price-list-modal-overlay';
             modalOverlay.style.cssText = WIDGET_STYLES.modalOverlay;
 
             const modalContent = document.createElement('div');
-            modalContent.className = 'bimcord-modal-content';
+            modalContent.className = 'bimcord-modal-content public-price-list-modal-content';
             modalContent.style.cssText = WIDGET_STYLES.modalContent;
 
             modalContent.innerHTML = `
