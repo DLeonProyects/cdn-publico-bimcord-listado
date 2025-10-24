@@ -110,10 +110,11 @@
             margin: 0 0 2rem 0;
         `,
         blockCard: `
-            background-color: white;
+            background-color: rgba(69,69,69,0.7);
+            backdrop-filter: blur(4px);
             border-radius: 0.75rem;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border: 1px solid #44403c;
             padding: 1.5rem;
             margin-bottom: 2rem;
         `,
@@ -123,13 +124,13 @@
             justify-content: space-between;
             margin-bottom: 1rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #44403c;
         `,
         blockTitle: `
             font-size: 1.25rem;
             line-height: 1.75rem;
             font-weight: 700;
-            color: #111827;
+            color: #e7e5e4;
             margin: 0;
         `,
         blockInfo: `
@@ -141,12 +142,12 @@
             font-size: 1.125rem;
             line-height: 1.75rem;
             font-weight: 600;
-            color: #2563eb;
+            color: #e7e5e4;
         `,
         blockCount: `
             font-size: 0.875rem;
             line-height: 1.25rem;
-            color: #4b5563;
+            color: #a8a29e;
         `,
         tableContainer: `
             overflow-x: auto;
@@ -157,39 +158,44 @@
             width: 100%;
         `,
         tableHeader: `
-            background-color: #f9fafb;
+            background-color: rgba(0,0,0,0.2);
         `,
         tableHeaderCell: `
-            padding: 0.5rem 1rem;
-            text-align: left;
+            padding: 1rem 1.5rem;
+            text-align: center;
             font-size: 0.75rem;
             line-height: 1rem;
-            font-weight: 500;
-            color: #6b7280;
+            font-weight: 700;
+            color: #a8a29e;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid #e5e7eb;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid #44403c;
         `,
         tableBody: `
-            background-color: white;
+            background-color: transparent;
         `,
         tableRow: `
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #44403c;
+            transition: background-color 0.2s ease-in-out;
         `,
         tableCell: `
-            padding: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
             font-size: 0.875rem;
             line-height: 1.25rem;
-            color: #111827;
+            color: #a8a29e;
             white-space: nowrap;
+            text-align: center;
+            vertical-align: middle;
         `,
         tableCellPrice: `
-            padding: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
             font-size: 0.875rem;
             line-height: 1.25rem;
-            font-weight: 500;
-            color: #2563eb;
+            font-weight: 600;
+            color: #e7e5e4;
             white-space: nowrap;
+            text-align: center;
+            vertical-align: middle;
         `,
         badge: `
             display: inline-flex;
@@ -198,9 +204,7 @@
             border-radius: 9999px;
             font-size: 0.75rem;
             line-height: 1rem;
-            font-weight: 500;
-            background-color: #dcfce7;
-            color: #166534;
+            font-weight: 600;
         `,
         errorMessage: `
             color: #dc2626;
@@ -260,20 +264,20 @@
         `,
         // Nuevos estilos para el botón "Me Interesa"
         interestButton: `
-            background-color: #2563eb;
+            background-color: rgba(14, 165, 233, 0.8);
             color: white;
             border: none;
             border-radius: 0.375rem;
             padding: 0.375rem 0.75rem;
             font-size: 0.75rem;
             line-height: 1rem;
-            font-weight: 500;
+            font-weight: 700;
             cursor: pointer;
             transition: background-color 0.2s;
             white-space: nowrap;
         `,
         interestButtonHover: `
-            background-color: #1d4ed8;
+            background-color: rgba(14, 165, 233, 0.9);
         `,
         // Estilos para el modal
         modalOverlay: `
@@ -743,6 +747,19 @@
     };
 
     // Clase principal del widget
+    function getStatusBadgeStyle(estado) {
+        switch (estado) {
+            case 'Disponible':
+                return "background-color: rgba(34, 197, 94, 0.2); color: #86efac;";
+            case 'Vendido':
+                return "background-color: rgba(239, 68, 68, 0.2); color: #fca5a5;";
+            case 'Reservado':
+                return "background-color: rgba(234, 179, 8, 0.2); color: #fde047;";
+            default:
+                return "background-color: rgba(107, 114, 128, 0.2); color: #e5e7eb;";
+        }
+    }
+
     class PublicPriceList {
         constructor(containerId, config = {}) {
             this.containerId = containerId;
@@ -947,14 +964,14 @@
                 : '';
 
             return `
-                <tr style="${WIDGET_STYLES.tableRow}">
+                <tr style="${WIDGET_STYLES.tableRow}" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseout="this.style.backgroundColor='transparent'">
                     <td style="${WIDGET_STYLES.tableCell}">${unit.numero}</td>
                     <td style="${WIDGET_STYLES.tableCell}">${unit.area}</td>
                     ${balconCell}
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.parqueos_from_block || '-'}</td>
+                    <td style="${WIDGET_STYLES.tableCell}">${unit.parqueos_from_block || '-'} </td>
                     <td style="${WIDGET_STYLES.tableCellPrice}">${formatCurrency(unit.precio, 'USD')}</td>
                     <td style="${WIDGET_STYLES.tableCell}">
-                        <span style="${WIDGET_STYLES.badge}">${unit.estado}</span>
+                        <span style="${WIDGET_STYLES.badge}; ${getStatusBadgeStyle(unit.estado)}">${unit.estado}</span>
                     </td>
                     <td style="${WIDGET_STYLES.tableCell}">
                         <button 
