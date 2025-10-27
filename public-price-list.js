@@ -215,7 +215,7 @@
             background-color: rgba(0,0,0,0.2);
         `,
         tableHeaderCell: `
-            padding: 1rem 1.5rem;
+            padding: 1rem 0.1rem;
             text-align: center;
             font-size: clamp(1.5rem, 3.8vw, 1.2rem);
             line-height: 1rem;
@@ -326,7 +326,7 @@
             padding: 0.375rem 0.75rem;
             font-size: clamp(1.5rem, 4vw, 1.2rem);
             line-height: 1rem;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
             white-space: nowrap;
