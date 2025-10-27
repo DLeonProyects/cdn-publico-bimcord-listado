@@ -236,7 +236,7 @@
         tableCell: `
             padding: 1rem 1.5rem;
             font-size: clamp(1.5rem, 3.8vw, 1.2rem);
-            line-height: 1.25rem;
+            line-height: 3rem;
             color: #a8a29e;
             white-space: nowrap;
             text-align: center;
