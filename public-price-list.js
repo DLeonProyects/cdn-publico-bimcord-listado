@@ -244,7 +244,7 @@
         `,
         tableCellPrice: `
             padding: 1rem 1.5rem;
-            font-size: clamp(1rem, 3.8vw, 1.2rem);
+            font-size: clamp(2rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             font-weight: 600;
             color: #e7e5e4;
