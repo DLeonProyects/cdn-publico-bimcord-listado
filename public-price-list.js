@@ -686,6 +686,13 @@
             <polyline points="7,10 12,15 17,10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>`
+        ,
+        chevronUp: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"/>
+        </svg>`,
+        chevronDown: `<svg style="${WIDGET_STYLES.icon}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+        </svg>`
     };
 
 
@@ -1006,10 +1013,7 @@
                 return `
                     <div style="${WIDGET_STYLES.blockCard}">
                         <div style="${WIDGET_STYLES.blockHeader}">
-                            <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
-                            <div style="${WIDGET_STYLES.blockInfo}">
-                                ${blockNameHtml}
-                                ${unitsCountHtml}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <button 
                                     class="bimcord-accordion-toggle"
                                     style="${WIDGET_STYLES.accordionToggle}"
@@ -1018,8 +1022,12 @@
                                     onmouseover="this.style.backgroundColor='rgba(255,255,255,0.06)'; this.style.borderColor='#6b7280';"
                                     onmouseout="this.style.backgroundColor='rgba(0,0,0,0.2)'; this.style.borderColor='#44403c';"
                                 >
-                                    Ocultar tabla
+                                    ${ICONS.chevronUp} Ocultar tabla
                                 </button>
+                                <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
+                            </div>
+                            <div style="${WIDGET_STYLES.blockInfo}">
+                                ${unitsCountHtml}
                             </div>
                         </div>
                         
@@ -1103,6 +1111,13 @@
                 const content = this.container.querySelector(`#${targetId}`);
                 if (!content) return;
 
+                // Establecer icono y texto inicial según estado
+                if (toggle.getAttribute('aria-expanded') === 'true') {
+                    toggle.innerHTML = `${ICONS.chevronUp} Ocultar tabla`;
+                } else {
+                    toggle.innerHTML = `${ICONS.chevronDown} Mostrar tabla`;
+                }
+
                 toggle.addEventListener('click', () => {
                     const expanded = toggle.getAttribute('aria-expanded') === 'true';
                     if (expanded) {
@@ -1110,13 +1125,13 @@
                         content.style.maxHeight = '0';
                         content.style.opacity = '0';
                         toggle.setAttribute('aria-expanded', 'false');
-                        toggle.textContent = 'Mostrar tabla';
+                        toggle.innerHTML = `${ICONS.chevronDown} Mostrar tabla`;
                     } else {
                         // Expandir
                         content.style.maxHeight = content.scrollHeight + 'px';
                         content.style.opacity = '1';
                         toggle.setAttribute('aria-expanded', 'true');
-                        toggle.textContent = 'Ocultar tabla';
+                        toggle.innerHTML = `${ICONS.chevronUp} Ocultar tabla`;
                     }
                 });
             });
