@@ -178,6 +178,7 @@
             min-width: 100%;
             border-collapse: collapse;
             width: 100%;
+            padding: 0rem;
         `,
         tableHeader: `
             background-color: rgba(0,0,0,0.2);
