@@ -1097,7 +1097,7 @@
                     <td style="${WIDGET_STYLES.tableCell}">${unit.area}</td>
                     ${balconCell}
                     <td style="${WIDGET_STYLES.tableCell}">${unit.parqueos_from_block || '-'} </td>
-                    <td style="${WIDGET_STYLES.tableCellPrice}">${formatCurrency(unit.precio, 'USD')}</td>
+                    <td style="${WIDGET_STYLES.tableCellPrice}">${unit.estado === 'Disponible' ? formatCurrency(unit.precio, 'USD') : '-'}</td>
                     <td style="${WIDGET_STYLES.tableCell}">
                         <span style="${WIDGET_STYLES.badge}; ${getStatusBadgeStyle(unit.estado)}">${unit.estado}</span>
                     </td>
@@ -1214,6 +1214,7 @@
                     th { font-weight: 700; }
                     .block-header { display: flex; justify-content: space-between; font-size: 12px; margin: 8px 0; }
                     .muted { font-size: 11px; }
+                    .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 9999px; font-weight: 600; font-size: 11px; }
                 </style>
             `;
 
@@ -1248,8 +1249,8 @@
                         <td>${u.area ?? '-'}</td>
                         ${hasExt ? `<td>${u.m2_balcon_from_block ?? '-'}</td>` : ''}
                         <td>${u.parqueos_from_block ?? '-'}</td>
-                        <td>${formatCurrency(u.precio, 'USD')}</td>
-                        <td>${u.estado ?? '-'}</td>
+                        <td>${u.estado === 'Disponible' ? formatCurrency(u.precio, 'USD') : '-'}</td>
+                        <td><span class="status-badge" style="${getStatusBadgeStyle(u.estado)}">${u.estado ?? '-'}</span></td>
                     </tr>
                 `).join('') : `
                     <tr>
