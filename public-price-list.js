@@ -651,6 +651,12 @@
             width: 1.25rem;
             height: 1.25rem;
             color: currentColor;
+        `,
+        headerActions: `
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 10;
         `
     };
 
@@ -983,9 +989,9 @@
                                 ${project?.nombre || 'Proyecto Sin Nombre'}
                             </h1>
                             <p style="${WIDGET_STYLES.projectSubtitle}">Listado de Precios Público</p>
-                            <div style="${WIDGET_STYLES.headerActions}">
-                                <button id="printPriceListButton" type="button" class="bimcord-button-secondary" style="${WIDGET_STYLES.buttonSecondary}">Imprimir Listado (PDF)</button>
-                            </div>
+                        </div>
+                        <div style="${WIDGET_STYLES.headerActions}">
+                            <button id="printPriceListButton" type="button" class="bimcord-button-secondary" style="${WIDGET_STYLES.buttonSecondary}">Imprimir Listado (PDF)</button>
                         </div>
                     </div>
 
@@ -1215,6 +1221,7 @@
                     .block-header { display: flex; justify-content: space-between; font-size: 12px; margin: 8px 0; }
                     .muted { font-size: 11px; }
                     .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 9999px; font-weight: 600; font-size: 11px; }
+                    .status-disponible { color: #22c55e !important; background-color: #86efac !important; }
                 </style>
             `;
 
@@ -1250,7 +1257,7 @@
                         ${hasExt ? `<td>${u.m2_balcon_from_block ?? '-'}</td>` : ''}
                         <td>${u.parqueos_from_block ?? '-'}</td>
                         <td>${u.estado === 'Disponible' ? formatCurrency(u.precio, 'USD') : '-'}</td>
-                        <td><span class="status-badge" style="${getStatusBadgeStyle(u.estado)}">${u.estado ?? '-'}</span></td>
+                        <td><span class="status-badge ${u.estado === 'Disponible' ? 'status-disponible' : ''}" style="${getStatusBadgeStyle(u.estado)}">${u.estado ?? '-'}</span></td>
                     </tr>
                 `).join('') : `
                     <tr>
