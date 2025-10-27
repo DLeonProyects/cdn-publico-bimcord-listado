@@ -27,9 +27,9 @@
             text-size-adjust: 115%;
         `,
         fullScreen: `
-            
+            height: 100dvh;
             background-color: transparent;
-     
+            overflow: hidden;
         `,
         embedded: `
             min-height: auto;
