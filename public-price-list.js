@@ -172,7 +172,10 @@
         tableContainer: `
             overflow: visible;
             position: relative;
-            width: 100%;
+            /* Expandir solo la tabla hasta los bordes del card */
+            width: calc(100% + 3rem);
+            margin-left: -1.5rem;
+            margin-right: -1.5rem;
         `,
         table: `
             min-width: 100%;
