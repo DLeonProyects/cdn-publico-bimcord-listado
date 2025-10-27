@@ -324,7 +324,7 @@
             border: none;
             border-radius: 0.375rem;
             padding: 0.375rem 0.75rem;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(1.5rem, 4vw, 1.2rem);
             line-height: 1rem;
             font-weight: 700;
             cursor: pointer;
@@ -376,7 +376,7 @@
             font-family: 'Poppins', sans-serif;
         `,
         modalSubtitle: `
-            font-size: clamp(1rem, 3.8vw, 1.2rem);
+            font-size: clamp(1.5rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             color: #6b7280;
             margin: 0;
