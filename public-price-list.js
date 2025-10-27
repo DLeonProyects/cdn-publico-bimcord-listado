@@ -1029,9 +1029,9 @@
                     <th style="${WIDGET_STYLES.tableHeaderCell}">Nivel</th>
                     <th style="${WIDGET_STYLES.tableHeaderCell}">Área (m²)</th>
                     ${blockType === 'Residencial' ? 
-                        `<th style="${WIDGET_STYLES.tableHeaderCell}">Balcón (m²)</th>` : 
+                        `<th style="${WIDGET_STYLES.tableHeaderCell}">EXT (m²)</th>` : 
                         ''}
-                    <th style="${WIDGET_STYLES.tableHeaderCell}">Parqueos</th>
+                    <th style="${WIDGET_STYLES.tableHeaderCell}">PARK</th>
                     <th style="${WIDGET_STYLES.tableHeaderCell}">Precio</th>
                     <th style="${WIDGET_STYLES.tableHeaderCell}">Estado</th>
                     <th style="${WIDGET_STYLES.tableHeaderCell}">Acción</th>
