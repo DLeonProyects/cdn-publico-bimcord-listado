@@ -1056,7 +1056,7 @@
 
             return `
                 <tr style="${WIDGET_STYLES.tableRow}" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseout="this.style.backgroundColor='transparent'">
-                    <td style="${WIDGET_STYLES.tableCell}; padding-left: 0;">${unit.numero}</td>
+                    <td style="${WIDGET_STYLES.tableCell}">${unit.numero}</td>
                     <td style="${WIDGET_STYLES.tableCell}">${unit.area}</td>
                     ${balconCell}
                     <td style="${WIDGET_STYLES.tableCell}">${unit.parqueos_from_block || '-'} </td>
@@ -1064,7 +1064,7 @@
                     <td style="${WIDGET_STYLES.tableCell}">
                         <span style="${WIDGET_STYLES.badge}; ${getStatusBadgeStyle(unit.estado)}">${unit.estado}</span>
                     </td>
-                    <td style="${WIDGET_STYLES.tableCell}; padding-right: 0;">
+                    <td style="${WIDGET_STYLES.tableCell}">
                         <button 
                             class="bimcord-interest-button" 
                             style="${WIDGET_STYLES.interestButton}"
