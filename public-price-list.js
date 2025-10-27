@@ -323,8 +323,7 @@
             color: white;
             border: none;
             border-radius: 0.375rem;
-            padding: 0.375rem 2rem;
-
+            padding: 1.375rem 2rem;
             font-size: clamp(1.7rem, 4vw, 1.2rem);
             line-height: 1rem;
             font-weight: 600;
