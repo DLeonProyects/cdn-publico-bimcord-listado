@@ -160,7 +160,7 @@
             border-radius: 0.5rem;
             background-color: rgba(0, 0, 0, 0.2);
             color: #e7e5e4;
-            font-size: 0.75rem;
+            font-size: 1.2rem;
             line-height: 1rem;
             cursor: pointer;
             transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
@@ -226,7 +226,7 @@
             align-items: center;
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
-            font-size: 0.75rem;
+            font-size: 1.2rem;
             line-height: 1rem;
             font-weight: 600;
         `,
@@ -293,7 +293,7 @@
             border: none;
             border-radius: 0.375rem;
             padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
+            font-size: 1.2rem;
             line-height: 1rem;
             font-weight: 700;
             cursor: pointer;
@@ -454,7 +454,7 @@
         `,
         formErrorMessage: `
             display: block;
-            font-size: 0.75rem;
+            font-size: 1.2rem;
             line-height: 1rem;
             color: #ef4444;
             margin-top: 0.25rem;
@@ -560,7 +560,7 @@
     `,
     helpText: `
         margin-top: 0.25rem;
-        font-size: 0.75rem;
+        font-size: 1.2rem;
         line-height: 1rem;
         color: #6b7280;
         font-family: 'Poppins', sans-serif;
@@ -611,7 +611,7 @@
             background-color: #f0f9ff;
             border: 1px solid #bae6fd;
             border-radius: 0.375rem;
-            font-size: 0.75rem;
+            font-size: 1.2rem;
             line-height: 1rem;
             color: #0369a1;
             font-family: 'Poppins', sans-serif;
