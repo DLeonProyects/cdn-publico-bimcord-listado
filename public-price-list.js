@@ -149,6 +149,26 @@
             line-height: 1.25rem;
             color: #a8a29e;
         `,
+        // Estilos para acordeón de tablas en cada card
+        accordionToggle: `
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #44403c;
+            border-radius: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: #e7e5e4;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            white-space: nowrap;
+        `,
+        accordionContent: `
+            transition: max-height 0.25s ease, opacity 0.25s ease;
+            overflow: hidden;
+        `,
         tableContainer: `
             overflow: visible;
             position: relative;
@@ -945,11 +965,13 @@
         }
 
         getBlocksHtml() {
-            return this.data.blocks_with_units.map(block => {
+            return this.data.blocks_with_units.map((block, idx) => {
                 // Usar directamente las propiedades del bloque desde el JSON
                 const blockName = block.nombre || 'Bloque Sin Nombre';
                 const blockType = block.tipo || 'Tipo No Especificado';
                 const unitsCount = block.units?.length || 0;
+
+                const accordionId = `bimcord-accordion-${idx}`;
 
                 const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
                     ? `<span style="${WIDGET_STYLES.blockName}">
@@ -988,18 +1010,30 @@
                             <div style="${WIDGET_STYLES.blockInfo}">
                                 ${blockNameHtml}
                                 ${unitsCountHtml}
+                                <button 
+                                    class="bimcord-accordion-toggle"
+                                    style="${WIDGET_STYLES.accordionToggle}"
+                                    data-target="${accordionId}"
+                                    aria-expanded="true"
+                                    onmouseover="this.style.backgroundColor='rgba(255,255,255,0.06)'; this.style.borderColor='#6b7280';"
+                                    onmouseout="this.style.backgroundColor='rgba(0,0,0,0.2)'; this.style.borderColor='#44403c';"
+                                >
+                                    Ocultar tabla
+                                </button>
                             </div>
                         </div>
                         
-                        <div style="${WIDGET_STYLES.tableContainer}">
-                            <table style="${WIDGET_STYLES.table}">
-                                <thead style="${WIDGET_STYLES.tableHeader}">
-                                    <tr>${tableHeaders}</tr>
-                                </thead>
-                                <tbody style="${WIDGET_STYLES.tableBody}">
-                                    ${tableRows}
-                                </tbody>
-                            </table>
+                        <div id="${accordionId}" class="bimcord-accordion-content" style="${WIDGET_STYLES.accordionContent}">
+                            <div style="${WIDGET_STYLES.tableContainer}">
+                                <table style="${WIDGET_STYLES.table}">
+                                    <thead style="${WIDGET_STYLES.tableHeader}">
+                                        <tr>${tableHeaders}</tr>
+                                    </thead>
+                                    <tbody style="${WIDGET_STYLES.tableBody}">
+                                        ${tableRows}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1052,6 +1086,49 @@
                         precio: unitPrice,
                         area: unitArea
                     });
+                });
+            });
+
+            // Inicializar acordeones: establecer altura inicial y listeners de toggle
+            const accordionContents = this.container.querySelectorAll('.bimcord-accordion-content');
+            accordionContents.forEach(content => {
+                // Altura inicial expandida
+                content.style.maxHeight = content.scrollHeight + 'px';
+                content.style.opacity = '1';
+            });
+
+            const accordionToggles = this.container.querySelectorAll('.bimcord-accordion-toggle');
+            accordionToggles.forEach(toggle => {
+                const targetId = toggle.getAttribute('data-target');
+                const content = this.container.querySelector(`#${targetId}`);
+                if (!content) return;
+
+                toggle.addEventListener('click', () => {
+                    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                    if (expanded) {
+                        // Colapsar
+                        content.style.maxHeight = '0';
+                        content.style.opacity = '0';
+                        toggle.setAttribute('aria-expanded', 'false');
+                        toggle.textContent = 'Mostrar tabla';
+                    } else {
+                        // Expandir
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        content.style.opacity = '1';
+                        toggle.setAttribute('aria-expanded', 'true');
+                        toggle.textContent = 'Ocultar tabla';
+                    }
+                });
+            });
+
+            // Ajustar altura del acordeón en redimensionamiento cuando esté expandido
+            window.addEventListener('resize', () => {
+                const contents = this.container.querySelectorAll('.bimcord-accordion-content');
+                contents.forEach(content => {
+                    const toggle = this.container.querySelector(`.bimcord-accordion-toggle[data-target="${content.id}"]`);
+                    if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
                 });
             });
         }
