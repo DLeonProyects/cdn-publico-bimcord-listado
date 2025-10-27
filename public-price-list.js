@@ -146,7 +146,7 @@
             color: #e7e5e4;
         `,
         blockCount: `
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             color: #a8a29e;
         `,
@@ -213,7 +213,7 @@
         `,
         tableCellPrice: `
             padding: 1rem 1.5rem;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             font-weight: 600;
             color: #e7e5e4;
@@ -345,7 +345,7 @@
             font-family: 'Poppins', sans-serif;
         `,
         modalSubtitle: `
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             color: #6b7280;
             margin: 0;
@@ -366,7 +366,7 @@
         `,
         formLabel: `
             display: block;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             font-weight: 500;
             color: #6b7280;
@@ -381,7 +381,7 @@
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             color: #111827;
             box-sizing: border-box;
@@ -405,7 +405,7 @@
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
         `,
         buttonSecondary: `
@@ -418,7 +418,7 @@
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
         `,
         closeButton: `
@@ -445,7 +445,7 @@
             border: 1px solid #ef4444;
             border-radius: 0.5rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             color: #111827;
             box-sizing: border-box;
@@ -471,7 +471,7 @@
             cursor: not-allowed;
             transition: all 0.2s ease-in-out;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             opacity: 0.6;
         `,
@@ -491,7 +491,7 @@
         cursor: pointer;
         transition: all 0.2s ease-in-out;
         font-family: 'Poppins', sans-serif;
-        font-size: 0.875rem;
+        font-size: 1.2rem;
         line-height: 1.25rem;
         text-align: center;
     `,
@@ -505,7 +505,7 @@
         cursor: pointer;
         transition: all 0.2s ease-in-out;
         font-family: 'Poppins', sans-serif;
-        font-size: 0.875rem;
+        font-size: 1.2rem;
         line-height: 1.25rem;
         text-align: center;
     `,
@@ -527,7 +527,7 @@
         cursor: pointer;
         transition: background-color 0.2s;
         font-family: 'Poppins', sans-serif;
-        font-size: 0.875rem;
+        font-size: 1.2rem;
         line-height: 1.25rem;
     `,
     nationalityOptionHover: `
@@ -551,7 +551,7 @@
         border: 1px solid #d1d5db;
         border-radius: 0.5rem;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        font-size: 0.875rem;
+        font-size: 1.2rem;
         line-height: 1.25rem;
         color: #111827;
         box-sizing: border-box;
@@ -581,7 +581,7 @@
             border: 2px dashed #d1d5db;
             border-radius: 0.5rem;
             color: #6b7280;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             font-weight: 500;
             cursor: pointer;
