@@ -255,9 +255,9 @@
         badge: `
             display: inline-flex;
             align-items: center;
-            padding: 0.25rem 0.5rem;
+            padding: 0.7rem 1rem;
             border-radius: 9999px;
-            font-size: clamp(0.95rem, 3.6vw, 1.1rem);
+            font-size: clamp(1.4rem, 3.6vw, 1.1rem);
             line-height: 1rem;
             font-weight: 600;
         `,
