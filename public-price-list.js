@@ -1022,7 +1022,7 @@
                                     onmouseover="this.style.backgroundColor='rgba(255,255,255,0.06)'; this.style.borderColor='#6b7280';"
                                     onmouseout="this.style.backgroundColor='rgba(0,0,0,0.2)'; this.style.borderColor='#44403c';"
                                 >
-                                    ${ICONS.chevronUp} Ocultar tabla
+                                    ${ICONS.chevronUp}
                                 </button>
                                 <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
                             </div>
@@ -1113,9 +1113,9 @@
 
                 // Establecer icono y texto inicial según estado
                 if (toggle.getAttribute('aria-expanded') === 'true') {
-                    toggle.innerHTML = `${ICONS.chevronUp} Ocultar tabla`;
+                    toggle.innerHTML = `${ICONS.chevronUp}`;
                 } else {
-                    toggle.innerHTML = `${ICONS.chevronDown} Mostrar tabla`;
+                    toggle.innerHTML = `${ICONS.chevronDown}`;
                 }
 
                 toggle.addEventListener('click', () => {
@@ -1125,13 +1125,13 @@
                         content.style.maxHeight = '0';
                         content.style.opacity = '0';
                         toggle.setAttribute('aria-expanded', 'false');
-                        toggle.innerHTML = `${ICONS.chevronDown} Mostrar tabla`;
+                        toggle.innerHTML = `${ICONS.chevronDown}`;
                     } else {
                         // Expandir
                         content.style.maxHeight = content.scrollHeight + 'px';
                         content.style.opacity = '1';
                         toggle.setAttribute('aria-expanded', 'true');
-                        toggle.innerHTML = `${ICONS.chevronUp} Ocultar tabla`;
+                        toggle.innerHTML = `${ICONS.chevronUp}`;
                     }
                 });
             });
