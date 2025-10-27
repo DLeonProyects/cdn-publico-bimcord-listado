@@ -13,7 +13,7 @@
     };
 
     // Estilos base para el widget
-    const WIDGET_STYLES = {
+        const WIDGET_STYLES = {
         container: `
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.5;
@@ -23,6 +23,8 @@
             padding: 0;
             background: transparent;
             box-sizing: border-box;
+            -webkit-text-size-adjust: 115%;
+            text-size-adjust: 115%;
         `,
         fullScreen: `
             min-height: 100vh;
@@ -89,7 +91,7 @@
             justify-content: flex-end;
         `,
         projectTitle: `
-            font-size: 2.25rem;
+            font-size: clamp(1.6rem, 6vw, 2.25rem);
             line-height: 2.5rem;
             font-weight: 700;
             color: white;
@@ -98,12 +100,12 @@
         `,
         projectSubtitle: `
             color: rgba(255, 255, 255, 0.9);
-            font-size: 1.125rem;
+            font-size: clamp(1rem, 3.8vw, 1.125rem);
             line-height: 1.75rem;
             margin: 0;
         `,
         sectionTitle: `
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
             line-height: 2rem;
             font-weight: 700;
             color: #111827;
@@ -138,14 +140,14 @@
             padding: 1.5rem;
         `,
         blockTitle: `
-            font-size: 0.875rem;
+            font-size: clamp(0.9rem, 4vw, 1rem);
             line-height: 1.75rem;
             font-weight: 700;
             color: #e7e5e4;
             margin: 0;
         `,
         blockTitleMobile: `
-            font-size: 0.575rem;
+            font-size: clamp(0.85rem, 4.2vw, 1rem);
             line-height: 1rem;
             font-weight: 700;
             color: #e7e5e4;
@@ -164,18 +166,18 @@
             width: 100%;
         `,
         blockName: `
-            font-size: 1.125rem;
+            font-size: clamp(1rem, 4.5vw, 1.125rem);
             line-height: 1.75rem;
             font-weight: 600;
             color: #e7e5e4;
         `,
         blockCount: `
-            font-size: 0.875rem;
+            font-size: clamp(0.85rem, 3.8vw, 1rem);
             line-height: 1.25rem;
             color: #a8a29e;
         `,
         blockCountMobile: `
-            font-size: 0.575rem;
+            font-size: clamp(0.75rem, 3.8vw, 0.9rem);
             line-height: 1rem;
             color: #a8a29e;
         `,
@@ -215,7 +217,7 @@
         tableHeaderCell: `
             padding: 1rem 1.5rem;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1rem;
             font-weight: 700;
             color: #a8a29e;
@@ -233,7 +235,7 @@
         `,
         tableCell: `
             padding: 1rem 1.5rem;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             color: #a8a29e;
             white-space: nowrap;
@@ -242,7 +244,7 @@
         `,
         tableCellPrice: `
             padding: 1rem 1.5rem;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             font-weight: 600;
             color: #e7e5e4;
@@ -255,7 +257,7 @@
             align-items: center;
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
-            font-size: 1.2rem;
+            font-size: clamp(0.95rem, 3.6vw, 1.1rem);
             line-height: 1rem;
             font-weight: 600;
         `,
@@ -322,7 +324,7 @@
             border: none;
             border-radius: 0.375rem;
             padding: 0.375rem 0.75rem;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 4vw, 1.2rem);
             line-height: 1rem;
             font-weight: 700;
             cursor: pointer;
@@ -366,7 +368,7 @@
             position: relative;
         `,
         modalTitle: `
-            font-size: 1.875rem;
+            font-size: clamp(1.4rem, 5.2vw, 1.875rem);
             line-height: 2.25rem;
             font-weight: 700;
             color: #111827;
@@ -374,7 +376,7 @@
             font-family: 'Poppins', sans-serif;
         `,
         modalSubtitle: `
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             color: #6b7280;
             margin: 0;
@@ -395,7 +397,7 @@
         `,
         formLabel: `
             display: block;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             font-weight: 500;
             color: #6b7280;
@@ -410,7 +412,7 @@
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             color: #111827;
             box-sizing: border-box;
@@ -434,7 +436,7 @@
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
         `,
         buttonSecondary: `
@@ -447,7 +449,7 @@
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
         `,
         closeButton: `
@@ -474,7 +476,7 @@
             border: 1px solid #ef4444;
             border-radius: 0.5rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             color: #111827;
             box-sizing: border-box;
@@ -483,7 +485,7 @@
         `,
         formErrorMessage: `
             display: block;
-            font-size: 1.2rem;
+            font-size: clamp(0.95rem, 3.6vw, 1.1rem);
             line-height: 1rem;
             color: #ef4444;
             margin-top: 0.25rem;
@@ -500,7 +502,7 @@
             cursor: not-allowed;
             transition: all 0.2s ease-in-out;
             font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1.25rem;
             opacity: 0.6;
         `,
@@ -520,7 +522,7 @@
         cursor: pointer;
         transition: all 0.2s ease-in-out;
         font-family: 'Poppins', sans-serif;
-        font-size: 1.2rem;
+        font-size: clamp(1rem, 3.8vw, 1.2rem);
         line-height: 1.25rem;
         text-align: center;
     `,
@@ -534,7 +536,7 @@
         cursor: pointer;
         transition: all 0.2s ease-in-out;
         font-family: 'Poppins', sans-serif;
-        font-size: 1.2rem;
+        font-size: clamp(1rem, 3.8vw, 1.2rem);
         line-height: 1.25rem;
         text-align: center;
     `,
@@ -556,7 +558,7 @@
         cursor: pointer;
         transition: background-color 0.2s;
         font-family: 'Poppins', sans-serif;
-        font-size: 1.2rem;
+        font-size: clamp(1rem, 3.8vw, 1.2rem);
         line-height: 1.25rem;
     `,
     nationalityOptionHover: `
@@ -589,7 +591,7 @@
     `,
     helpText: `
         margin-top: 0.25rem;
-        font-size: 1.2rem;
+        font-size: clamp(1rem, 3.6vw, 1.1rem);
         line-height: 1rem;
         color: #6b7280;
         font-family: 'Poppins', sans-serif;
@@ -640,7 +642,7 @@
             background-color: #f0f9ff;
             border: 1px solid #bae6fd;
             border-radius: 0.375rem;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.8vw, 1.2rem);
             line-height: 1rem;
             color: #0369a1;
             font-family: 'Poppins', sans-serif;
@@ -1104,7 +1106,7 @@
                             data-unit-number="${unit.numero}"
                             data-unit-price="${unit.precio}"
                             data-unit-area="${unit.area}">
-                            ${ICONS.heart} Me Interesa
+                            Me Interesa
                         </button>
                     </td>
                 </tr>
