@@ -29,7 +29,7 @@
         fullScreen: `
             
             background-color: transparent;
-            padding: 1.5rem;
+     
         `,
         embedded: `
             min-height: auto;
