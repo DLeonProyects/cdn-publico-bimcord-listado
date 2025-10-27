@@ -1221,7 +1221,7 @@
                     .block-header { display: flex; justify-content: space-between; font-size: 12px; margin: 8px 0; }
                     .muted { font-size: 11px; }
                     .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 9999px; font-weight: 600; font-size: 11px; }
-                    .status-disponible { color: #22c55e !important; background-color: #86efac !important; }
+                    .status-disponible { color: #22c55e !important; background-color: #ceffe0 !important; }
                 </style>
             `;
 
