@@ -1023,7 +1023,7 @@
                                     class="bimcord-accordion-toggle"
                                     style="${WIDGET_STYLES.accordionToggle}"
                                     data-target="${accordionId}"
-                                    aria-expanded="true"
+                                    aria-expanded="${idx === 0 ? 'true' : 'false'}"
                                     onmouseover="this.style.backgroundColor='rgba(255,255,255,0.06)'; this.style.borderColor='#6b7280';"
                                     onmouseout="this.style.backgroundColor='rgba(0,0,0,0.2)'; this.style.borderColor='#44403c';"
                                 >
@@ -1032,7 +1032,7 @@
                             </div>
                         </div>
                         
-                        <div id="${accordionId}" class="bimcord-accordion-content" style="${WIDGET_STYLES.accordionContent}">
+                        <div id="${accordionId}" class="bimcord-accordion-content" style="${WIDGET_STYLES.accordionContent}${idx === 0 ? ' max-height: 60vh; opacity: 1; overflow-y: auto;' : ' max-height: 0; opacity: 0; overflow: hidden;'}">
                             <div style="${WIDGET_STYLES.tableContainer}">
                                 <table style="${WIDGET_STYLES.table}">
                                     <thead style="${WIDGET_STYLES.tableHeader}">
@@ -1098,24 +1098,23 @@
                 });
             });
 
-            // Inicializar acordeones: establecer altura inicial y listeners de toggle
-            const accordionContents = this.container.querySelectorAll('.bimcord-accordion-content');
-            accordionContents.forEach(content => {
-                // Altura inicial expandida
-                content.style.maxHeight = content.scrollHeight + 'px';
-                content.style.opacity = '1';
-            });
-
+            // Inicializar acordeones: solo el primero expandido con scroll, otros colapsados
             const accordionToggles = this.container.querySelectorAll('.bimcord-accordion-toggle');
             accordionToggles.forEach(toggle => {
                 const targetId = toggle.getAttribute('data-target');
                 const content = this.container.querySelector(`#${targetId}`);
                 if (!content) return;
 
-                // Establecer icono y texto inicial según estado
+                // Establecer estado inicial: primero expandido con scroll (60vh), otros colapsados
                 if (toggle.getAttribute('aria-expanded') === 'true') {
+                    content.style.maxHeight = '60vh';
+                    content.style.opacity = '1';
+                    content.style.overflowY = 'auto';
                     toggle.innerHTML = `${ICONS.chevronUp}`;
                 } else {
+                    content.style.maxHeight = '0';
+                    content.style.opacity = '0';
+                    content.style.overflowY = 'hidden';
                     toggle.innerHTML = `${ICONS.chevronDown}`;
                 }
 
@@ -1125,12 +1124,14 @@
                         // Colapsar
                         content.style.maxHeight = '0';
                         content.style.opacity = '0';
+                        content.style.overflowY = 'hidden';
                         toggle.setAttribute('aria-expanded', 'false');
                         toggle.innerHTML = `${ICONS.chevronDown}`;
                     } else {
                         // Expandir
-                        content.style.maxHeight = content.scrollHeight + 'px';
+                        content.style.maxHeight = '60vh';
                         content.style.opacity = '1';
+                        content.style.overflowY = 'auto';
                         toggle.setAttribute('aria-expanded', 'true');
                         toggle.innerHTML = `${ICONS.chevronUp}`;
                     }
@@ -1143,7 +1144,9 @@
                 contents.forEach(content => {
                     const toggle = this.container.querySelector(`.bimcord-accordion-toggle[data-target="${content.id}"]`);
                     if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
-                        content.style.maxHeight = content.scrollHeight + 'px';
+                        // Mantener una altura fija con scroll cuando esté expandido
+                        content.style.maxHeight = '60vh';
+                        content.style.overflowY = 'auto';
                     }
                 });
             });
