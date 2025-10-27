@@ -215,7 +215,7 @@
             background-color: rgba(0,0,0,0.2);
         `,
         tableHeaderCell: `
-            padding: 1rem 0.6rem;
+            padding: 3rem 0.6rem;
             text-align: center;
             font-size: clamp(1.5rem, 3.8vw, 1.2rem);
             line-height: 1rem;
