@@ -27,7 +27,7 @@
             text-size-adjust: 115%;
         `,
         fullScreen: `
-            min-height: 100vh;
+            
             background-color: transparent;
             padding: 1.5rem;
         `,
