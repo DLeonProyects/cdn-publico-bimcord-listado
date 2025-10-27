@@ -154,7 +154,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.375rem 0.75rem;
+            padding: 0.375rem 1.75rem;
             border: 1px solid #44403c;
             border-radius: 0.5rem;
             background-color: rgba(0, 0, 0, 0.2);
@@ -977,6 +977,7 @@
                 const blockName = block.nombre || 'Bloque Sin Nombre';
                 const blockType = block.tipo || 'Tipo No Especificado';
                 const unitsCount = block.units?.length || 0;
+                const availableUnitsCount = (block.units || []).filter(u => u.estado === 'Disponible').length;
 
                 const accordionId = `bimcord-accordion-${idx}`;
 
@@ -987,7 +988,7 @@
                     : '';
 
                 const unitsCountHtml = unitsCount > 0 
-                    ? `<span style="${WIDGET_STYLES.blockCount}">${unitsCount} unidades</span>`
+                    ? `<span style="${WIDGET_STYLES.blockCount}">${availableUnitsCount}/${unitsCount} Unidades Disponibles</span>`
                     : '';
 
                 const tableHeaders = `
@@ -1014,6 +1015,10 @@
                     <div style="${WIDGET_STYLES.blockCard}">
                         <div style="${WIDGET_STYLES.blockHeader}">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
+                            </div>
+                            <div style="${WIDGET_STYLES.blockInfo}">
+                                ${unitsCountHtml}
                                 <button 
                                     class="bimcord-accordion-toggle"
                                     style="${WIDGET_STYLES.accordionToggle}"
@@ -1024,10 +1029,6 @@
                                 >
                                     ${ICONS.chevronUp}
                                 </button>
-                                <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
-                            </div>
-                            <div style="${WIDGET_STYLES.blockInfo}">
-                                ${unitsCountHtml}
                             </div>
                         </div>
                         
