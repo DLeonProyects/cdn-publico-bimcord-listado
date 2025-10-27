@@ -983,6 +983,9 @@
                                 ${project?.nombre || 'Proyecto Sin Nombre'}
                             </h1>
                             <p style="${WIDGET_STYLES.projectSubtitle}">Listado de Precios Público</p>
+                            <div style="${WIDGET_STYLES.headerActions}">
+                                <button id="printPriceListButton" type="button" class="bimcord-button-secondary" style="${WIDGET_STYLES.buttonSecondary}">Imprimir Listado (PDF)</button>
+                            </div>
                         </div>
                     </div>
 
@@ -1184,6 +1187,108 @@
                     }
                 });
             });
+
+            // Botón de imprimir listado (PDF vía impresión del navegador)
+            const printButton = this.container.querySelector('#printPriceListButton');
+            if (printButton) {
+                printButton.addEventListener('click', () => this.printListingAsPDF());
+            }
+        }
+
+        // Genera HTML simple en blanco y negro para imprimir el listado actual
+        generatePrintableHTML() {
+            const project = this.data?.proyecto_detail || {};
+            const blocks = this.data?.blocks_with_units || [];
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            const styles = `
+                <style>
+                    @page { size: A4; margin: 16mm 12mm; }
+                    body { font-family: Helvetica, Arial, sans-serif; color: #000; background: #fff; }
+                    h1 { font-size: 20px; margin: 0 0 6px 0; }
+                    h2 { font-size: 14px; margin: 12px 0 6px 0; }
+                    .meta { font-size: 11px; margin-bottom: 10px; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+                    th, td { border: 1px solid #000; padding: 6px 8px; font-size: 11px; text-align: center; }
+                    th { font-weight: 700; }
+                    .block-header { display: flex; justify-content: space-between; font-size: 12px; margin: 8px 0; }
+                    .muted { font-size: 11px; }
+                </style>
+            `;
+
+            const header = `
+                <h1>LISTADO DE PRECIOS - ${project.nombre || 'Proyecto'}</h1>
+                <div class="meta">Emitido: ${dateStr}</div>
+            `;
+
+            const blockSections = blocks.map(block => {
+                const blockName = block.nombre || 'Bloque';
+                const blockType = block.tipo || 'Tipo';
+                const units = block.units || [];
+                const availableUnitsCount = units.filter(u => u.estado === 'Disponible').length;
+                const unitsCount = units.length;
+
+                const hasExt = blockType === 'Residencial';
+
+                const headers = `
+                    <tr>
+                        <th>Unidad</th>
+                        <th>Área (m²)</th>
+                        ${hasExt ? '<th>EXT (m²)</th>' : ''}
+                        <th>Park</th>
+                        <th>Precio (USD)</th>
+                        <th>Estado</th>
+                    </tr>
+                `;
+
+                const rows = units.length > 0 ? units.map(u => `
+                    <tr>
+                        <td>${u.numero ?? '-'}</td>
+                        <td>${u.area ?? '-'}</td>
+                        ${hasExt ? `<td>${u.m2_balcon_from_block ?? '-'}</td>` : ''}
+                        <td>${u.parqueos_from_block ?? '-'}</td>
+                        <td>${formatCurrency(u.precio, 'USD')}</td>
+                        <td>${u.estado ?? '-'}</td>
+                    </tr>
+                `).join('') : `
+                    <tr>
+                        <td colspan="${hasExt ? 6 : 5}">No hay unidades disponibles en este bloque</td>
+                    </tr>
+                `;
+
+                return `
+                    <div class="block">
+                        <div class="block-header"><div><strong>${blockName}</strong> (${blockType})</div><div class="muted">${availableUnitsCount}/${unitsCount} disponibles</div></div>
+                        <table>
+                            <thead>${headers}</thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+            }).join('');
+
+            return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>${styles}<title>Listado de Precios</title></head><body>${header}${blockSections}</body></html>`;
+        }
+
+        // Abre una nueva ventana con el HTML e invoca la impresión del navegador
+        printListingAsPDF() {
+            try {
+                const printable = this.generatePrintableHTML();
+                const win = window.open('', '_blank');
+                if (!win) {
+                    alert('No se pudo abrir la ventana de impresión. Por favor, habilita los pop-ups.');
+                    return;
+                }
+                win.document.open();
+                win.document.write(printable);
+                win.document.close();
+                win.focus();
+                setTimeout(() => { win.print(); }, 250);
+            } catch (err) {
+                console.error('Error al preparar impresión:', err);
+                alert('Ocurrió un error al preparar la impresión del listado.');
+            }
         }
 
         showInterestModal(unit) {
