@@ -167,7 +167,10 @@
         `,
         accordionContent: `
             transition: max-height 0.25s ease, opacity 0.25s ease;
-            overflow: hidden;
+            /* Permitir que el contenido se extienda horizontalmente más allá del padding del card */
+            overflow-x: visible;
+            /* Mantener el recorte vertical por defecto; se habilita scroll en estado expandido */
+            overflow-y: hidden;
         `,
         tableContainer: `
             overflow: visible;
