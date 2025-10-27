@@ -128,7 +128,7 @@
             padding: 1.5rem;
         `,
         blockTitle: `
-            font-size: 1.25rem;
+            font-size: 0.875rem;
             line-height: 1.75rem;
             font-weight: 700;
             color: #e7e5e4;
@@ -146,7 +146,7 @@
             color: #e7e5e4;
         `,
         blockCount: `
-            font-size: 1.2rem;
+            font-size: 0.875rem;
             line-height: 1.25rem;
             color: #a8a29e;
         `,
