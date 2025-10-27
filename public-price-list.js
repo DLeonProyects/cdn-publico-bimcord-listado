@@ -186,7 +186,7 @@
         tableHeaderCell: `
             padding: 1rem 1.5rem;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 1.2rem;
             line-height: 1rem;
             font-weight: 700;
             color: #a8a29e;
@@ -204,7 +204,7 @@
         `,
         tableCell: `
             padding: 1rem 1.5rem;
-            font-size: 0.875rem;
+            font-size: 1.2rem;
             line-height: 1.25rem;
             color: #a8a29e;
             white-space: nowrap;
