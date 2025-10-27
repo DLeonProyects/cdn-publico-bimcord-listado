@@ -127,9 +127,26 @@
             border-bottom: 1px solid #44403c;
             padding: 1.5rem;
         `,
+        blockHeaderMobile: `
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #44403c;
+            padding: 1.5rem;
+        `,
         blockTitle: `
             font-size: 0.875rem;
             line-height: 1.75rem;
+            font-weight: 700;
+            color: #e7e5e4;
+            margin: 0;
+        `,
+        blockTitleMobile: `
+            font-size: 0.575rem;
+            line-height: 1rem;
             font-weight: 700;
             color: #e7e5e4;
             margin: 0;
@@ -138,6 +155,13 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+        `,
+        blockInfoMobile: `
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            width: 100%;
         `,
         blockName: `
             font-size: 1.125rem;
@@ -148,6 +172,11 @@
         blockCount: `
             font-size: 0.875rem;
             line-height: 1.25rem;
+            color: #a8a29e;
+        `,
+        blockCountMobile: `
+            font-size: 0.575rem;
+            line-height: 1rem;
             color: #a8a29e;
         `,
         // Estilos para acordeón de tablas en cada card
@@ -982,14 +1011,16 @@
 
                 const accordionId = `bimcord-accordion-${idx}`;
 
+                const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
+
                 const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
-                    ? `<span style="${WIDGET_STYLES.blockName}">
+                    ? `<span style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">
                         ${blockName}
                     </span>`
                     : '';
 
                 const unitsCountHtml = unitsCount > 0 
-                    ? `<span style="${WIDGET_STYLES.blockCount}">${availableUnitsCount}/${unitsCount} Unidades Disponibles</span>`
+                    ? `<span style="${isMobile ? WIDGET_STYLES.blockCountMobile : WIDGET_STYLES.blockCount}">${availableUnitsCount}/${unitsCount} Unidades Disponibles</span>`
                     : '';
 
                 const tableHeaders = `
@@ -1014,11 +1045,11 @@
 
                 return `
                     <div style="${WIDGET_STYLES.blockCard}">
-                        <div style="${WIDGET_STYLES.blockHeader}">
+                        <div style="${isMobile ? WIDGET_STYLES.blockHeaderMobile : WIDGET_STYLES.blockHeader}">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <h3 style="${WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
+                                <h3 style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
                             </div>
-                            <div style="${WIDGET_STYLES.blockInfo}">
+                            <div style="${isMobile ? WIDGET_STYLES.blockInfoMobile : WIDGET_STYLES.blockInfo}">
                                 ${unitsCountHtml}
                                 <button 
                                     class="bimcord-accordion-toggle"
