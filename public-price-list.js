@@ -1080,7 +1080,7 @@
 
                 const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
                     ? `<span style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">
-                        ${blockName}
+                        ${blockName} -
                     </span>`
                     : '';
 
