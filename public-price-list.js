@@ -1204,16 +1204,10 @@
             });
 
             // Botón de imprimir listado (PDF vía impresión del navegador)
-// Botón de imprimir listado (PDF vía impresión del navegador o en el parent)
-// Botón de imprimir listado (abre nueva pestaña con versión imprimible)
-// Botón de imprimir listado (abre página externa con la versión imprimible)
-        const printButton = this.container.querySelector('#printPriceListButton');
-        if (printButton) {
-            printButton.addEventListener('click', () => {
-                const printUrl = `${this.config.apiBaseUrl}/widget/print-listado.html?projectId=${this.config.projectId}`;
-                window.open(printUrl, '_blank');
-            });
-        }
+            const printButton = this.container.querySelector('#printPriceListButton');
+            if (printButton) {
+                printButton.addEventListener('click', () => this.printListingAsPDF());
+            }
         }
 
         // Genera HTML simple en blanco y negro para imprimir el listado actual
