@@ -1014,9 +1014,9 @@
                                 id="printPriceListButton" 
                                 type="button" 
                                 class="bimcord-button-secondary" 
-                                style="${WIDGET_STYLES.buttonSecondary}"
-                                onmouseover="this.style.backgroundColor='#f3f4f6'; this.style.borderColor='#2563eb'; this.style.color='#2563eb'; this.querySelector('span').style.color='#2563eb';"
-                                onmouseout="this.style.backgroundColor='white'; this.style.borderColor='#d1d5db'; this.style.color='#6b7280'; this.querySelector('span').style.color='#6b7280';"
+                                style="${WIDGET_STYLES.buttonSecondary}; background-color:#6b7280; color:#FFF; border-color: transparent;"
+                                onmouseover="this.style.backgroundColor='#4b5563'; this.style.borderColor='transparent'; this.style.color='#FFF'; this.querySelector('span').style.color='#FFF';"
+                                onmouseout="this.style.backgroundColor='#6b7280'; this.style.borderColor='transparent'; this.style.color='#FFF'; this.querySelector('span').style.color='#FFF';"
                             >
                                 <span style="margin-right:0.5rem;display:inline-flex;align-items:center;justify-content:center;color:inherit;">${ICONS.printer}</span>
                                 Imprimir
