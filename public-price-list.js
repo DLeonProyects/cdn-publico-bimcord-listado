@@ -1298,6 +1298,12 @@
                 <div class="meta">Emitido: ${dateStr}</div>
             `;
 
+            const generatedByText = `
+                <div style="text-align: center; margin: 20px 0; font-size: 12px; color: #666;">
+                    Generado por: BIMCORD.COM
+                </div>
+            `;
+
             const blockSections = blocks.map(block => {
                 const blockName = block.nombre || 'Bloque';
                 const blockType = block.tipo || 'Tipo';
@@ -1344,7 +1350,7 @@
                 `;
             }).join('');
 
-            return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>${styles}<title>Listado de Precios</title></head><body>${header}${blockSections}</body></html>`;
+            return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>${styles}<title>Listado de Precios</title></head><body>${header}${generatedByText}${blockSections}</body></html>`;
         }
 
         // Descarga directa del HTML del listado (sin abrir diálogo de impresión)
@@ -1356,8 +1362,10 @@
                 const a = document.createElement('a');
                 const now = new Date();
                 const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+                const project = this.data?.proyecto_detail || {};
+                const projectName = (project.nombre || 'Proyecto').replace(/[^a-zA-Z0-9\-_]/g, '_'); // Sanitize filename
                 a.href = url;
-                a.download = `listado-precios_${ts}.html`;
+                a.download = `listado-precios_${projectName}-${ts}.html`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
