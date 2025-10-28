@@ -147,7 +147,7 @@
             margin: 0;
         `,
         blockTitleMobile: `
-            font-size: clamp(0.85rem, 4.2vw, 1rem);
+            font-size: clamp(0.85rem, 4.2vw, 0.8rem);
             line-height: 1rem;
             font-weight: 700;
             color: #e7e5e4;
@@ -1080,7 +1080,7 @@
 
                 const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
                     ? `<span style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">
-                        ${blockName} -
+                        ${blockName}
                     </span>`
                     : '';
 
@@ -1112,7 +1112,7 @@
                     <div style="${WIDGET_STYLES.blockCard}">
                         <div style="${isMobile ? WIDGET_STYLES.blockHeaderMobile : WIDGET_STYLES.blockHeader}">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <h3 style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">${blockName} (${blockType}${badgeText})</h3>
+                                <h3 style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">${blockName} (${blockType})${badgeText}</h3>
                             </div>
                             <div style="${isMobile ? WIDGET_STYLES.blockInfoMobile : WIDGET_STYLES.blockInfo}">
                                 ${unitsCountHtml}
