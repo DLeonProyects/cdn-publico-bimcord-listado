@@ -1015,8 +1015,8 @@
                                 type="button" 
                                 class="bimcord-button-secondary" 
                                 style="${WIDGET_STYLES.buttonSecondary}; background-color:#6b7280; color:#FFF; border-color: transparent;"
-                                onmouseover="this.style.backgroundColor='#4b5563'; this.style.borderColor='transparent'; this.style.color='#FFF'; this.querySelector('span').style.color='#FFF';"
-                                onmouseout="this.style.backgroundColor='#6b7280'; this.style.borderColor='transparent'; this.style.color='#FFF'; this.querySelector('span').style.color='#FFF';"
+                                onmouseover="this.style.setProperty('background-color','#4b5563','important'); this.style.setProperty('border-color','transparent','important'); this.style.setProperty('color','#FFF','important'); this.querySelector('span').style.setProperty('color','#FFF','important');"
+                                onmouseout="this.style.setProperty('background-color','#6b7280','important'); this.style.setProperty('border-color','transparent','important'); this.style.setProperty('color','#FFF','important'); this.querySelector('span').style.setProperty('color','#FFF','important');"
                             >
                                 <span style="margin-right:0.5rem;display:inline-flex;align-items:center;justify-content:center;color:inherit;">${ICONS.printer}</span>
                                 Imprimir
