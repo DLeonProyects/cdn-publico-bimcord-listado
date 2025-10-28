@@ -746,7 +746,7 @@
             <polyline points="6 9 12 15 18 9"/>
         </svg>`
         ,
-        printer: `<svg style="${WIDGET_STYLES.icon} color: #0ea5e9; margin-top: 0.1rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="bi bi-printer">
+        printer: `<svg style="${WIDGET_STYLES.icon} color: #FFF; margin-top: 0.1rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="bi bi-printer">
             <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
             <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
         </svg>`
@@ -1010,7 +1010,17 @@
                             <p style="${WIDGET_STYLES.projectSubtitle}">Listado de Precios Público</p>
                         </div>
                         <div style="${WIDGET_STYLES.headerActions}">
-                            <button id="printPriceListButton" type="button" class="bimcord-button-secondary" style="${WIDGET_STYLES.buttonSecondary}"><span style="margin-right:0.5rem;display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:9999px;background-color:rgba(37,99,235,0.12);color:#1d4ed8;">${ICONS.printer}</span>Imprimir Listado (PDF)</button>
+                            <button 
+                                id="printPriceListButton" 
+                                type="button" 
+                                class="bimcord-button-secondary" 
+                                style="${WIDGET_STYLES.buttonSecondary}"
+                                onmouseover="this.style.backgroundColor='#f3f4f6'; this.style.borderColor='#2563eb'; this.style.color='#2563eb'; this.querySelector('span').style.color='#2563eb';"
+                                onmouseout="this.style.backgroundColor='white'; this.style.borderColor='#d1d5db'; this.style.color='#6b7280'; this.querySelector('span').style.color='#6b7280';"
+                            >
+                                <span style="margin-right:0.5rem;display:inline-flex;align-items:center;justify-content:center;color:inherit;">${ICONS.printer}</span>
+                                Imprimir
+                            </button>
                         </div>
                     </div>
 
