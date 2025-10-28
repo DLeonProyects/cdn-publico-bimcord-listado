@@ -1063,8 +1063,8 @@
                 const areaText = minArea !== null
                     ? (Number.isInteger(minArea) ? String(minArea) : minArea.toFixed(2))
                     : null;
-                const badgeHtml = minArea !== null && minPrice !== null
-                    ? `<span style="${WIDGET_STYLES.blockSummaryBadge}">Desde ${areaText}m2 - ${formatCurrency(minPrice, 'USD')}</span>`
+                const badgeText = minArea !== null && minPrice !== null
+                    ? ` <span style="font-weight:500">- Desde ${areaText}m2 - ${formatCurrency(minPrice, 'USD')}</span>`
                     : '';
 
                 const accordionId = `bimcord-accordion-${idx}`;
@@ -1094,7 +1094,7 @@
                 `;
 
                 const tableRows = block.units?.length > 0 
-                    ? block.units.map(unit => this.getUnitRowHtml(unit, blockType)).join('')
+                    ? block.units.map((unit, unitIdx) => this.getUnitRowHtml(unit, blockType, idx === 0, unitIdx)).join('')
                     : `<tr style="${WIDGET_STYLES.tableRow}">
                         <td colspan="${blockType === 'Residencial' ? '7' : '6'}" style="${WIDGET_STYLES.tableCell}; text-align: center; color: #6b7280;">
                             No hay unidades disponibles en este bloque
@@ -1105,8 +1105,7 @@
                     <div style="${WIDGET_STYLES.blockCard}">
                         <div style="${isMobile ? WIDGET_STYLES.blockHeaderMobile : WIDGET_STYLES.blockHeader}">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <h3 style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
-                                ${badgeHtml}
+                                <h3 style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">${blockName} (${blockType}${badgeText})</h3>
                             </div>
                             <div style="${isMobile ? WIDGET_STYLES.blockInfoMobile : WIDGET_STYLES.blockInfo}">
                                 ${unitsCountHtml}
@@ -1140,17 +1139,17 @@
             }).join('');
         }
 
-        getUnitRowHtml(unit, blockType) {
+        getUnitRowHtml(unit, blockType, isFirstBlock = false, unitIdx = -1) {
             const balconCell = blockType === 'Residencial' 
-                ? `<td style="${WIDGET_STYLES.tableCell}">${unit.m2_balcon_from_block || '-'}</td>`
+                ? `<td style="${WIDGET_STYLES.tableCell}; ${isFirstBlock && unitIdx === 0 ? 'color:#ffffff;' : ''}">${unit.m2_balcon_from_block || '-'}</td>`
                 : '';
 
             return `
                 <tr style="${WIDGET_STYLES.tableRow}" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseout="this.style.backgroundColor='transparent'">
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.numero}</td>
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.area}</td>
+                    <td style="${WIDGET_STYLES.tableCell}; ${isFirstBlock && unitIdx === 0 ? 'color:#ffffff;font-weight:600;' : ''}">${unit.numero}</td>
+                    <td style="${WIDGET_STYLES.tableCell}; ${isFirstBlock && unitIdx === 0 ? 'color:#ffffff;' : ''}">${unit.area}</td>
                     ${balconCell}
-                    <td style="${WIDGET_STYLES.tableCell}">${unit.parqueos_from_block || '-'} </td>
+                    <td style="${WIDGET_STYLES.tableCell}; ${isFirstBlock && unitIdx === 0 ? 'color:#ffffff;' : ''}">${unit.parqueos_from_block || '-'} </td>
                     <td style="${WIDGET_STYLES.tableCellPrice}">${unit.estado === 'Disponible' ? formatCurrency(unit.precio, 'USD') : '-'}</td>
                     <td style="${WIDGET_STYLES.tableCell}">
                         <span style="${WIDGET_STYLES.badge}; ${getStatusBadgeStyle(unit.estado)}">${unit.estado}</span>
