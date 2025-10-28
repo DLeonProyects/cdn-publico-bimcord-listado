@@ -1175,6 +1175,8 @@
                         content.style.overflowY = 'hidden';
                         toggle.setAttribute('aria-expanded', 'false');
                         toggle.innerHTML = `${ICONS.chevronDown}`;
+                        // Recalcular escalado tras colapsar por si cambió el layout
+                        requestAnimationFrame(() => autoScaleTablesToViewport(this.container));
                     } else {
                         // Expandir
                         content.style.maxHeight = '60vh';
@@ -1182,6 +1184,8 @@
                         content.style.overflowY = 'auto';
                         toggle.setAttribute('aria-expanded', 'true');
                         toggle.innerHTML = `${ICONS.chevronUp}`;
+                        // Recalcular escalado para las tablas visibles del acordeón
+                        requestAnimationFrame(() => autoScaleTablesToViewport(this.container));
                     }
                 });
             });
@@ -1284,23 +1288,24 @@
             return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>${styles}<title>Listado de Precios</title></head><body>${header}${blockSections}</body></html>`;
         }
 
-        // Abre una nueva ventana con el HTML e invoca la impresión del navegador
+        // Descarga directa del HTML del listado (sin abrir diálogo de impresión)
         printListingAsPDF() {
             try {
                 const printable = this.generatePrintableHTML();
-                const win = window.open('', '_blank');
-                if (!win) {
-                    alert('No se pudo abrir la ventana de impresión. Por favor, habilita los pop-ups.');
-                    return;
-                }
-                win.document.open();
-                win.document.write(printable);
-                win.document.close();
-                win.focus();
-                setTimeout(() => { win.print(); }, 250);
+                const blob = new Blob([printable], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const now = new Date();
+                const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+                a.href = url;
+                a.download = `listado-precios_${ts}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 500);
             } catch (err) {
-                console.error('Error al preparar impresión:', err);
-                alert('Ocurrió un error al preparar la impresión del listado.');
+                console.error('Error al preparar descarga:', err);
+                alert('Ocurrió un error al preparar la descarga del listado.');
             }
         }
 
