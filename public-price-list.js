@@ -1205,21 +1205,22 @@
 
             // Botón de imprimir listado (PDF vía impresión del navegador)
 // Botón de imprimir listado (PDF vía impresión del navegador o en el parent)
+// Botón de imprimir listado (abre nueva pestaña con versión imprimible)
         const printButton = this.container.querySelector('#printPriceListButton');
         if (printButton) {
             printButton.addEventListener('click', () => {
-                const printable = this.generatePrintableHTML();
+                try {
+                    const printableHTML = this.generatePrintableHTML();
 
-                // Si estamos dentro de un iframe (distinto dominio)
-                if (window.parent && window.parent !== window) {
-                    // Enviamos el HTML al parent para que imprima o descargue allí
-                    window.parent.postMessage({
-                        type: 'BIMCORD_PRINT_PDF',
-                        html: printable
-                    }, '*');
-                } else {
-                    // Si no estamos en un iframe, hacemos la descarga local normal
-                    this.printListingAsPDF();
+                    // Creamos un blob con el HTML imprimible
+                    const blob = new Blob([printableHTML], { type: 'text/html;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+
+                    // Abrimos una nueva pestaña con el contenido imprimible
+                    window.open(url, '_blank');
+                } catch (error) {
+                    console.error('Error al abrir vista imprimible:', error);
+                    alert('No se pudo generar la vista imprimible.');
                 }
             });
         }
