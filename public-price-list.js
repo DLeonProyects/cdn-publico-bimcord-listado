@@ -1063,13 +1063,20 @@
                 const areaText = minArea !== null
                     ? (Number.isInteger(minArea) ? String(minArea) : minArea.toFixed(2))
                     : null;
-                const badgeText = minArea !== null && minPrice !== null
-                    ? ` <span style="font-weight:500">- Desde ${areaText}m2 - ${formatCurrency(minPrice, 'USD')}</span>`
-                    : '';
+                // badgeText se definirá tras conocer si es móvil para poder insertar salto de línea
+                let badgeText = '';
 
                 const accordionId = `bimcord-accordion-${idx}`;
 
                 const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
+
+                if (minArea !== null && minPrice !== null) {
+                    const fromText = `Desde ${areaText}m2 - ${formatCurrency(minPrice, 'USD')}`;
+                    // En móvil, hacemos salto de línea después del guion
+                    badgeText = isMobile
+                        ? `<br/><span style="font-weight:500">${fromText}</span>`
+                        : ` - <span style="font-weight:500">${fromText}</span>`;
+                }
 
                 const blockNameHtml = blockName !== 'Bloque Sin Nombre' 
                     ? `<span style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">
