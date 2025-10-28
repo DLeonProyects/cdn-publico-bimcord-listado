@@ -1206,22 +1206,12 @@
             // Botón de imprimir listado (PDF vía impresión del navegador)
 // Botón de imprimir listado (PDF vía impresión del navegador o en el parent)
 // Botón de imprimir listado (abre nueva pestaña con versión imprimible)
+// Botón de imprimir listado (abre página externa con la versión imprimible)
         const printButton = this.container.querySelector('#printPriceListButton');
         if (printButton) {
             printButton.addEventListener('click', () => {
-                try {
-                    const printableHTML = this.generatePrintableHTML();
-
-                    // Creamos un blob con el HTML imprimible
-                    const blob = new Blob([printableHTML], { type: 'text/html;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-
-                    // Abrimos una nueva pestaña con el contenido imprimible
-                    window.open(url, '_blank');
-                } catch (error) {
-                    console.error('Error al abrir vista imprimible:', error);
-                    alert('No se pudo generar la vista imprimible.');
-                }
+                const printUrl = `${this.config.apiBaseUrl}/widget/print-listado.html?projectId=${this.config.projectId}`;
+                window.open(printUrl, '_blank');
             });
         }
         }
