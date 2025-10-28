@@ -171,6 +171,20 @@
             font-weight: 600;
             color: #e7e5e4;
         `,
+        // Badge resumen: "Desde {área}m2 - {precio} USD"
+        blockSummaryBadge: `
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            background-color: #ffffff;
+            color: #374151;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            font-weight: 600;
+            font-size: clamp(0.8rem, 3.8vw, 0.95rem);
+            line-height: 1rem;
+        `,
         blockCount: `
             font-size: clamp(0.85rem, 3.8vw, 1rem);
             line-height: 1.25rem;
@@ -1025,6 +1039,34 @@
                 const unitsCount = block.units?.length || 0;
                 const availableUnitsCount = (block.units || []).filter(u => u.estado === 'Disponible').length;
 
+                // Calcular área mínima y precio mínimo (priorizando unidades Disponibles)
+                const units = block.units || [];
+                const availableUnits = units.filter(u => u.estado === 'Disponible');
+
+                const sourceForMin = availableUnits.length ? availableUnits : units;
+                const areas = sourceForMin
+                    .map(u => {
+                        const n = typeof u.area === 'number' ? u.area : parseFloat(String(u.area).replace(/,/g, '.'));
+                        return Number.isFinite(n) ? n : null;
+                    })
+                    .filter(n => n !== null);
+                const prices = sourceForMin
+                    .map(u => {
+                        const n = typeof u.precio === 'number' ? u.precio : parseFloat(String(u.precio).replace(/[^0-9.\-]/g, ''));
+                        return Number.isFinite(n) ? n : null;
+                    })
+                    .filter(n => n !== null);
+
+                const minArea = areas.length ? Math.min(...areas) : null;
+                const minPrice = prices.length ? Math.min(...prices) : null;
+
+                const areaText = minArea !== null
+                    ? (Number.isInteger(minArea) ? String(minArea) : minArea.toFixed(2))
+                    : null;
+                const badgeHtml = minArea !== null && minPrice !== null
+                    ? `<span style="${WIDGET_STYLES.blockSummaryBadge}">Desde ${areaText}m2 - ${formatCurrency(minPrice, 'USD')}</span>`
+                    : '';
+
                 const accordionId = `bimcord-accordion-${idx}`;
 
                 const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
@@ -1064,6 +1106,7 @@
                         <div style="${isMobile ? WIDGET_STYLES.blockHeaderMobile : WIDGET_STYLES.blockHeader}">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <h3 style="${isMobile ? WIDGET_STYLES.blockTitleMobile : WIDGET_STYLES.blockTitle}">${blockName} (${blockType})</h3>
+                                ${badgeHtml}
                             </div>
                             <div style="${isMobile ? WIDGET_STYLES.blockInfoMobile : WIDGET_STYLES.blockInfo}">
                                 ${unitsCountHtml}
